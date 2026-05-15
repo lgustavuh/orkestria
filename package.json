@@ -1,0 +1,27 @@
+{
+  "name": "orkestria",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "turbo run dev --filter=@orkestria/api --filter=@orkestria/web",
+    "dev:worker": "cd apps/worker && npx ts-node src/main.ts",
+    "dev:all": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "db:generate": "cd apps/api && npx prisma generate",
+    "db:migrate": "cd apps/api && npx prisma generate && npx prisma migrate dev",
+    "db:seed": "docker exec -i orkestria-postgres psql -U postgres -d orkestria < apps/api/prisma/seed.sql",
+    "db:studio": "cd apps/api && npx prisma studio",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down"
+  },
+  "devDependencies": {
+    "turbo": "^2.1.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
