@@ -1,0 +1,27 @@
+node_modules/
+dist/
+.next/
+coverage/
+*.log
+
+# Production secrets only
+.env.production
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Prisma generated
+apps/api/src/generated/
+
+# Logs - keep folder, ignore contents
+log/*
+!log/.gitkeep
+!log/README.md

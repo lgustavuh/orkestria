@@ -1,0 +1,23 @@
+{
+  "name": "@orkestria/infra",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "deploy:staging": "cdk deploy OrkestriaStaging --require-approval never",
+    "deploy:prod": "cdk deploy OrkestriaProduction",
+    "diff": "cdk diff"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.150.0",
+    "constructs": "^10.3.0",
+    "source-map-support": "^0.5.21"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.150.0",
+    "typescript": "^5.5.0",
+    "@types/node": "^20.14.0"
+  }
+}

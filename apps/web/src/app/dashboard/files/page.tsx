@@ -1,0 +1,218 @@
+'use client';
+
+import { useEffect, useState, useRef } from 'react';
+import { api } from '@/lib/api';
+import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
+import { FileText, Upload, Download, Image as ImageIcon, Film, X, CheckCircle2, FolderKanban, Trash2, ArrowLeft, Folder } from 'lucide-react';
+import { Avatar } from '@/components/ui/avatar';
+
+interface UploadingFile { file: File; progress: number; status: 'uploading' | 'done' | 'error'; error?: string; }
+
+const formatSize = (bytes: number) => { if (bytes < 1024) return `${bytes} B`; if (bytes < 1048576) return `${(bytes / 1024).toFixed(0)} KB`; return `${(bytes / 1048576).toFixed(1)} MB`; };
+const isImageMime = (mime: string) => mime?.startsWith('image/') && !mime?.includes('svg');
+const fileEmoji = (mime: string) => {
+  if (mime?.startsWith('image/')) return '🖼️';
+  if (mime?.includes('pdf')) return '📄';
+  if (mime?.startsWith('video/')) return '🎬';
+  if (mime?.includes('word') || mime?.includes('document')) return '📝';
+  if (mime?.includes('sheet') || mime?.includes('excel')) return '📊';
+  if (mime?.includes('presentation') || mime?.includes('powerpoint')) return '📑';
+  return '📎';
+};
+
+export default function FilesPage() {
+  const [files, setFiles] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState('');
+  const [viewingProject, setViewingProject] = useState<string | null>(null);
+  const [uploading, setUploading] = useState<UploadingFile[]>([]);
+  const [dragOver, setDragOver] = useState(false);
+  const [previews, setPreviews] = useState<Record<string, string>>({});
+  const inputRef = useRef<HTMLInputElement>(null);
+  const { show } = useToast();
+  const { user, hasRole } = useAuth();
+  const canDeleteAll = hasRole('ADMIN') || hasRole('STRATEGIST');
+
+  useEffect(() => {
+    load();
+    api.getProjects({ limit: '100' }).then((r: any) => setProjects(r.data || [])).catch(() => {});
+  }, []);
+
+  const load = () => api.fetch<any>('/files').then((r: any) => {
+    const items = r.data || r || [];
+    setFiles(items);
+    // Load image previews
+    items.forEach((f: any) => {
+      if (isImageMime(f.mimeType) && !previews[f.id]) {
+        api.getDownloadUrl(f.id).then(r => setPreviews(p => ({ ...p, [f.id]: r.downloadUrl }))).catch(() => {});
+      }
+    });
+  }).catch(() => setFiles([]));
+
+  const uploadFile = async (file: File) => {
+    const entry: UploadingFile = { file, progress: 0, status: 'uploading' };
+    setUploading(prev => [...prev, entry]);
+    const update = (p: number, s: UploadingFile['status'] = 'uploading') => setUploading(prev => prev.map(u => u.file === file ? { ...u, progress: p, status: s } : u));
+    try {
+      update(10);
+      const presigned = await api.getPresignedUpload({ projectId: selectedProjectId || undefined, fileName: file.name, mimeType: file.type || (() => {
+          const ext = file.name.split('.').pop()?.toLowerCase() || '';
+          const mimeMap: Record<string, string> = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', txt: 'text/plain', csv: 'text/csv', mp4: 'video/mp4', zip: 'application/zip' };
+          return mimeMap[ext] || 'text/plain';
+        })(), sizeBytes: file.size });
+      update(20);
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) update(20 + Math.round((e.loaded / e.total) * 60)); });
+        xhr.addEventListener('load', () => xhr.status < 300 ? resolve() : reject(new Error(`${xhr.status}`)));
+        xhr.addEventListener('error', () => reject(new Error('Erro de rede')));
+        xhr.open('PUT', presigned.uploadUrl);
+        xhr.send(file);
+      });
+      update(85);
+      await api.registerFile({ projectId: selectedProjectId || undefined, fileName: file.name, originalName: file.name, mimeType: file.type || 'application/octet-stream', sizeBytes: file.size, s3Key: presigned.s3Key, s3Bucket: presigned.s3Bucket });
+      update(100, 'done');
+      show(`${file.name} enviado`);
+      load();
+      setTimeout(() => setUploading(prev => prev.filter(u => u.file !== file)), 2000);
+    } catch (err: any) {
+      setUploading(prev => prev.map(u => u.file === file ? { ...u, status: 'error', error: err.message } : u));
+      show(err.message, 'error');
+    }
+  };
+
+  const handleFiles = (fl: FileList | null) => { if (fl) Array.from(fl).forEach(uploadFile); };
+
+  const openFile = async (fileId: string) => {
+    try { const r = await api.getDownloadUrl(fileId); window.open(r.downloadUrl, '_blank'); } catch { show('Erro ao abrir', 'error'); }
+  };
+
+  const deleteFile = async (fileId: string, name: string) => {
+    if (!confirm(`Excluir "${name}"?`)) return;
+    try { await api.fetch(`/files/${fileId}`, { method: 'DELETE' }); show('Arquivo excluído'); load(); } catch (err: any) { show(err.message, 'error'); }
+  };
+
+  // Group files by project
+  const grouped = files.reduce<Record<string, { name: string; clientName?: string; files: any[] }>>((acc, f) => {
+    const key = f.projectId || '_general';
+    if (!acc[key]) acc[key] = { name: f.project?.name || 'Geral', clientName: f.project?.client?.name, files: [] };
+    acc[key].files.push(f);
+    return acc;
+  }, {});
+
+  const currentFiles = viewingProject ? (grouped[viewingProject]?.files || []) : [];
+  const projectGroups = Object.entries(grouped);
+
+  const canDelete = (f: any) => canDeleteAll || f.uploadedBy?.id === user?.id;
+
+  const FileCard = ({ f }: { f: any }) => {
+    const hasPreview = isImageMime(f.mimeType) && previews[f.id];
+    return (
+      <div className="group card p-0 overflow-hidden hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all">
+        <button onClick={() => openFile(f.id)} className="w-full h-32 bg-gray-50 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
+          {hasPreview ? (
+            <img src={previews[f.id]} alt={f.originalName} className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-4xl">{fileEmoji(f.mimeType)}</span>
+          )}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+            <Download size={20} className="text-white opacity-0 group-hover:opacity-100 drop-shadow-lg" />
+          </div>
+        </button>
+        <div className="p-3">
+          <p className="text-sm font-medium truncate dark:text-gray-100">{f.originalName || f.fileName}</p>
+          <div className="flex items-center gap-2 mt-1.5">
+            {f.uploadedBy && <Avatar firstName={f.uploadedBy.firstName} lastName={f.uploadedBy.lastName} size="xs" />}
+            <p className="text-[10px] text-gray-400 truncate flex-1">{f.uploadedBy ? `${f.uploadedBy.firstName} ${f.uploadedBy.lastName}` : ''}</p>
+          </div>
+          <div className="flex items-center justify-between mt-1.5">
+            <span className="text-[10px] text-gray-400">{formatSize(Number(f.sizeBytes))} · {f.createdAt ? new Date(f.createdAt).toLocaleDateString('pt-BR') : ''}</span>
+            {canDelete(f) && (
+              <button onClick={(e) => { e.stopPropagation(); deleteFile(f.id, f.originalName || f.fileName); }}
+                className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-red-50 dark:hover:bg-red-900/20 transition-opacity">
+                <Trash2 size={12} className="text-red-400" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div>
+      <h2 className="text-2xl font-semibold mb-6 dark:text-white">Arquivos</h2>
+
+      {/* Upload area */}
+      <div className="card mb-6">
+        <div className="flex items-center gap-3 mb-4">
+          <FolderKanban size={16} className="text-gray-400" />
+          <div className="flex-1">
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Enviar para o projeto:</label>
+            <select className="input text-sm" value={selectedProjectId} onChange={e => setSelectedProjectId(e.target.value)}>
+              <option value="">Geral (sem projeto)</option>
+              {projects.map((p: any) => <option key={p.id} value={p.id}>{p.name}{p.client?.name ? ` — ${p.client.name}` : ''}</option>)}
+            </select>
+          </div>
+        </div>
+        <div onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)}
+          onDrop={e => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
+          onClick={() => inputRef.current?.click()}
+          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${dragOver ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-900/10' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}>
+          <Upload size={24} className={`mx-auto mb-2 ${dragOver ? 'text-indigo-500' : 'text-gray-400'}`} />
+          <p className="text-sm text-gray-500 dark:text-gray-400">Arraste ou <span className="text-indigo-600 dark:text-indigo-400 font-medium">clique</span></p>
+          <input ref={inputRef} type="file" className="hidden" multiple onChange={e => { handleFiles(e.target.files); e.target.value = ''; }} />
+        </div>
+      </div>
+
+      {/* Upload progress */}
+      {uploading.length > 0 && (
+        <div className="space-y-2 mb-6">
+          {uploading.map((u, i) => (
+            <div key={i} className="card flex items-center gap-3 p-3">
+              <FileText size={16} className={u.status === 'error' ? 'text-red-400' : u.status === 'done' ? 'text-emerald-500' : 'text-gray-400'} />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium truncate dark:text-gray-200">{u.file.name}</p>
+                {u.status === 'error' ? <p className="text-xs text-red-500">{u.error}</p>
+                  : u.status === 'done' ? <p className="text-xs text-emerald-500"><CheckCircle2 size={12} className="inline" /> Concluído</p>
+                  : <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mt-1"><div className="h-full bg-indigo-500 rounded-full" style={{ width: `${u.progress}%` }} /></div>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* File browser */}
+      {files.length === 0 ? (
+        <div className="card text-center py-12"><FileText size={32} className="mx-auto text-gray-300 dark:text-gray-600 mb-3" /><p className="text-gray-400 text-sm">Nenhum arquivo</p></div>
+      ) : viewingProject ? (
+        /* Inside a project folder */
+        <div>
+          <button onClick={() => setViewingProject(null)} className="flex items-center gap-2 mb-4 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+            <ArrowLeft size={16} /> Voltar para pastas
+          </button>
+          <h3 className="text-lg font-medium mb-4 dark:text-white">{grouped[viewingProject]?.name || 'Arquivos'}</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {currentFiles.map((f: any) => <FileCard key={f.id} f={f} />)}
+          </div>
+        </div>
+      ) : (
+        /* Project folders view */
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {projectGroups.map(([key, group]) => (
+            <button key={key} onClick={() => setViewingProject(key)}
+              className="card p-4 text-center hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all group">
+              <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40 transition-colors">
+                <Folder size={28} className="text-indigo-500" />
+              </div>
+              <p className="text-sm font-medium truncate dark:text-white">{group.name}</p>
+              {group.clientName && <p className="text-[10px] text-gray-400 truncate">{group.clientName}</p>}
+              <p className="text-xs text-gray-400 mt-1">{group.files.length} arquivo{group.files.length !== 1 ? 's' : ''}</p>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
