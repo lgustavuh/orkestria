@@ -39,6 +39,7 @@ export default function RegisterPage() {
           ownerEmail: form.ownerEmail,
           ownerPhone: form.ownerPhone,
           ownerDocument: form.ownerDocument,
+          ownerPassword: form.ownerPassword,
           plan,
         }),
       });

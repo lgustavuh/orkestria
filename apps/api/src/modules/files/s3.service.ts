@@ -76,9 +76,9 @@ export class S3Service {
     return { url, key, bucket: this.bucket };
   }
 
-  async getPresignedDownloadUrl(key: string, originalName?: string) {
+  async getPresignedDownloadUrl(key: string, originalName?: string, bucket?: string) {
     const command = new GetObjectCommand({
-      Bucket: this.bucket,
+      Bucket: bucket || this.bucket,
       Key: key,
       ...(originalName ? {
         ResponseContentDisposition: `attachment; filename="${encodeURIComponent(originalName)}"`,

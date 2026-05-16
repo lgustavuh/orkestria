@@ -114,9 +114,6 @@ export class TenantsService {
     }
 
     return {
-    });
-
-    return {
       tenantId: result.tenant.id,
       slug: result.tenant.slug,
       plan: result.tenant.plan,
