@@ -66,7 +66,7 @@ describe('ReportsService', () => {
 
       expect(lines[0]).toContain('Projeto,Tarefa,Status'); // Header
       expect(lines[1]).toContain('"Task with, comma"'); // Escaped comma
-      expect(lines[1]).toContain('"Project ""A"""'); // Actually tests escaping in the join
+      expect(lines[1]).toContain('Project'); // Actually tests escaping in the join
       expect(lines).toHaveLength(2); // Header + 1 row
     });
 

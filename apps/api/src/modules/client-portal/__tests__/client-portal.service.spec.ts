@@ -2,12 +2,15 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException, ForbiddenException } from '@nestjs/common';
 import { ClientPortalService } from '../client-portal.service';
 import { PrismaService } from '../../../database/prisma.service';
+import { S3Service } from '../../files/s3.service';
 
 describe('ClientPortalService', () => {
   let service: ClientPortalService;
   let prisma: any;
 
-  const mockPrisma = {
+  const mockS3 = { getPresignedDownloadUrl: jest.fn().mockResolvedValue('https://download'), createBucket: jest.fn() };
+
+const mockPrisma = {
     clientUser: { findMany: jest.fn() },
     project: { findMany: jest.fn(), findUnique: jest.fn(), count: jest.fn() },
     file: { findMany: jest.fn() },
@@ -21,6 +24,7 @@ describe('ClientPortalService', () => {
       providers: [
         ClientPortalService,
         { provide: PrismaService, useValue: mockPrisma },
+        { provide: S3Service, useValue: mockS3 },
       ],
     }).compile();
 

@@ -8,6 +8,10 @@ describe('ApprovalsService', () => {
   let prisma: any;
 
   const mockPrisma = {
+  auditLog: { create: jest.fn().mockResolvedValue({}) },
+  user: { findUnique: jest.fn().mockResolvedValue({ firstName: 'Test' }) },
+  task: { findUnique: jest.fn().mockResolvedValue({ assigneeId: 'u2', title: 'Task', projectId: 'p1' }) },
+  notification: { createMany: jest.fn().mockResolvedValue({ count: 0 }) },
     approval: {
       create: jest.fn(),
       findMany: jest.fn(),

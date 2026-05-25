@@ -10,6 +10,9 @@ describe('TasksService', () => {
   let projectsService: any;
 
   const mockPrisma = {
+  user: { findUnique: jest.fn().mockResolvedValue({ firstName: 'Test', lastName: 'User' }) },
+  projectMember: { findMany: jest.fn().mockResolvedValue([]) },
+  notification: { createMany: jest.fn().mockResolvedValue({ count: 0 }) },
     task: {
       create: jest.fn(),
       findUnique: jest.fn(),

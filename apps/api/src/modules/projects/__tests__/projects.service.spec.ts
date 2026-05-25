@@ -162,7 +162,7 @@ describe('ProjectsService', () => {
   describe('softDelete', () => {
     it('should only allow admin to delete', async () => {
       await expect(
-        service.softDelete('proj-1', 'user-1', ['STRATEGIST']),
+        service.softDelete('proj-1', 'user-1', ['COPYWRITER']),
       ).rejects.toThrow(ForbiddenException);
     });
 
