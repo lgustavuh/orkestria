@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { api } from '@/lib/api';
+import { formatDateBR } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { FileText, Upload, Download, Image as ImageIcon, Film, X, CheckCircle2, FolderKanban, Trash2, ArrowLeft, Folder } from 'lucide-react';
@@ -109,7 +110,7 @@ export default function FilesPage() {
   const FileCard = ({ f }: { f: any }) => {
     const hasPreview = isImageMime(f.mimeType) && previews[f.id];
     return (
-      <div className="group card p-0 overflow-hidden hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all">
+      <div className="group card p-0 overflow-hidden hover:border-[#7BABC2] dark:hover:border-[#2A3F4E] hover:shadow-md transition-all">
         <button onClick={() => openFile(f.id)} className="w-full h-32 bg-gray-50 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
           {hasPreview ? (
             <img src={previews[f.id]} alt={f.originalName} className="w-full h-full object-cover" />
@@ -127,7 +128,7 @@ export default function FilesPage() {
             <p className="text-[10px] text-gray-400 truncate flex-1">{f.uploadedBy ? `${f.uploadedBy.firstName} ${f.uploadedBy.lastName}` : ''}</p>
           </div>
           <div className="flex items-center justify-between mt-1.5">
-            <span className="text-[10px] text-gray-400">{formatSize(Number(f.sizeBytes))} · {f.createdAt ? new Date(f.createdAt).toLocaleDateString('pt-BR') : ''}</span>
+            <span className="text-[10px] text-gray-400">{formatSize(Number(f.sizeBytes))} · {f.createdAt ? formatDateBR(f.createdAt) : ''}</span>
             {canDelete(f) && (
               <button onClick={(e) => { e.stopPropagation(); deleteFile(f.id, f.originalName || f.fileName); }}
                 className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-red-50 dark:hover:bg-red-900/20 transition-opacity">
@@ -159,9 +160,9 @@ export default function FilesPage() {
         <div onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)}
           onDrop={e => { e.preventDefault(); setDragOver(false); handleFiles(e.dataTransfer.files); }}
           onClick={() => inputRef.current?.click()}
-          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${dragOver ? 'border-indigo-400 bg-indigo-50 dark:bg-indigo-900/10' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}>
-          <Upload size={24} className={`mx-auto mb-2 ${dragOver ? 'text-indigo-500' : 'text-gray-400'}`} />
-          <p className="text-sm text-gray-500 dark:text-gray-400">Arraste ou <span className="text-indigo-600 dark:text-indigo-400 font-medium">clique</span></p>
+          className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${dragOver ? 'border-[#6B9AB8] bg-[#EBF3F7] dark:bg-[#1E2F3A]/10' : 'border-gray-200 dark:border-gray-700 hover:border-gray-300'}`}>
+          <Upload size={24} className={`mx-auto mb-2 ${dragOver ? 'text-[#4B7B9C]' : 'text-gray-400'}`} />
+          <p className="text-sm text-gray-500 dark:text-gray-400">Arraste ou <span className="text-[#3A6280] dark:text-[#6B9AB8] font-medium">clique</span></p>
           <input ref={inputRef} type="file" className="hidden" multiple onChange={e => { handleFiles(e.target.files); e.target.value = ''; }} />
         </div>
       </div>
@@ -176,7 +177,7 @@ export default function FilesPage() {
                 <p className="text-xs font-medium truncate dark:text-gray-200">{u.file.name}</p>
                 {u.status === 'error' ? <p className="text-xs text-red-500">{u.error}</p>
                   : u.status === 'done' ? <p className="text-xs text-emerald-500"><CheckCircle2 size={12} className="inline" /> Concluído</p>
-                  : <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mt-1"><div className="h-full bg-indigo-500 rounded-full" style={{ width: `${u.progress}%` }} /></div>}
+                  : <div className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full mt-1"><div className="h-full bg-[#4B7B9C] rounded-full" style={{ width: `${u.progress}%` }} /></div>}
               </div>
             </div>
           ))}
@@ -202,9 +203,9 @@ export default function FilesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {projectGroups.map(([key, group]) => (
             <button key={key} onClick={() => setViewingProject(key)}
-              className="card p-4 text-center hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all group">
-              <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 flex items-center justify-center group-hover:bg-indigo-100 dark:group-hover:bg-indigo-900/40 transition-colors">
-                <Folder size={28} className="text-indigo-500" />
+              className="card p-4 text-center hover:border-[#7BABC2] dark:hover:border-[#2A3F4E] hover:shadow-md transition-all group">
+              <div className="w-16 h-16 mx-auto mb-3 rounded-xl bg-[#EBF3F7] dark:bg-[#1E2F3A]/20 flex items-center justify-center group-hover:bg-[#D6E7EF] dark:group-hover:bg-[#1E2F3A]/40 transition-colors">
+                <Folder size={28} className="text-[#4B7B9C]" />
               </div>
               <p className="text-sm font-medium truncate dark:text-white">{group.name}</p>
               {group.clientName && <p className="text-[10px] text-gray-400 truncate">{group.clientName}</p>}

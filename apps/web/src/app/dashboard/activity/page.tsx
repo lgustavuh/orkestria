@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { formatDateBR } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import { Activity, FileText, CheckSquare, FolderKanban, ThumbsUp, Upload, LogIn, Trash2 } from 'lucide-react';
 
@@ -9,10 +10,10 @@ const ACTION_CONFIG: Record<string, { icon: any; color: string; label: string }>
   CREATE: { icon: FolderKanban, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20', label: 'criou' },
   UPDATE: { icon: CheckSquare, color: 'text-blue-500 bg-blue-50 dark:bg-blue-900/20', label: 'editou' },
   DELETE: { icon: Trash2, color: 'text-red-500 bg-red-50 dark:bg-red-900/20', label: 'excluiu' },
-  LOGIN: { icon: LogIn, color: 'text-indigo-500 bg-indigo-50 dark:bg-indigo-900/20', label: 'fez login' },
+  LOGIN: { icon: LogIn, color: 'text-[#4B7B9C] bg-[#EBF3F7] dark:bg-[#1E2F3A]/20', label: 'fez login' },
   APPROVE: { icon: ThumbsUp, color: 'text-emerald-500 bg-emerald-50 dark:bg-emerald-900/20', label: 'aprovou' },
   REJECT: { icon: ThumbsUp, color: 'text-red-500 bg-red-50 dark:bg-red-900/20', label: 'rejeitou' },
-  UPLOAD: { icon: Upload, color: 'text-violet-500 bg-violet-50 dark:bg-violet-900/20', label: 'enviou arquivo' },
+  UPLOAD: { icon: Upload, color: 'text-[#4B7B9C] bg-[#EBF3F7] dark:bg-[#1E2F3A]/20', label: 'enviou arquivo' },
   SHARE: { icon: FileText, color: 'text-amber-500 bg-amber-50 dark:bg-amber-900/20', label: 'compartilhou' },
 };
 
@@ -36,7 +37,7 @@ export default function ActivityPage() {
     if (hours < 24) return `${hours}h atrás`;
     const days = Math.floor(hours / 24);
     if (days < 7) return `${days}d atrás`;
-    return new Date(date).toLocaleDateString('pt-BR');
+    return formatDateBR(date);
   };
 
   const resourceLabel = (r: string) => ({

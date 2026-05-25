@@ -128,13 +128,13 @@ export function FileUpload({ projectId, taskId, onUploadComplete, accept, maxSiz
         onClick={() => inputRef.current?.click()}
         className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-colors ${
           dragOver
-            ? 'border-indigo-400 bg-indigo-50'
+            ? 'border-[#6B9AB8] bg-[#EBF3F7]'
             : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
         }`}
       >
-        <Upload size={24} className={`mx-auto mb-2 ${dragOver ? 'text-indigo-500' : 'text-gray-400'}`} />
+        <Upload size={24} className={`mx-auto mb-2 ${dragOver ? 'text-[#4B7B9C]' : 'text-gray-400'}`} />
         <p className="text-sm text-gray-500">
-          Arraste arquivos aqui ou <span className="text-indigo-600 font-medium">clique para selecionar</span>
+          Arraste arquivos aqui ou <span className="text-[#3A6280] font-medium">clique para selecionar</span>
         </p>
         <p className="text-xs text-gray-400 mt-1">Máximo {maxSizeMB}MB por arquivo</p>
         <input
@@ -169,7 +169,7 @@ export function FileUpload({ projectId, taskId, onUploadComplete, accept, maxSiz
                   ) : (
                     <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-indigo-500 rounded-full transition-all duration-300"
+                        className="h-full bg-[#4B7B9C] rounded-full transition-all duration-300"
                         style={{ width: `${u.progress}%` }}
                       />
                     </div>

@@ -37,7 +37,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: '#2d2a3e' }}>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: '#2A3F4E' }}>
       <div className="w-full max-w-sm" style={{ background: 'var(--bg-card)', borderRadius: '18px', padding: '36px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}>
         <div className="text-center mb-8">
           <img src="/logo-icon.svg" alt="Orkestria" className="w-11 h-11 mx-auto" style={{ borderRadius: '12px' }} />
@@ -59,7 +59,7 @@ export default function LoginPage() {
             </div>
           )}
           <button type="submit" disabled={loading} className="btn-primary w-full text-[13px]" style={{ padding: '11px' }}>{loading ? 'Entrando...' : 'Entrar'}</button>
-          <p className="text-center mt-4 text-[11px]" style={{ color: '#7c6ef0' }}>Esqueci minha senha</p>
+          <p className="text-center mt-4 text-[11px]" style={{ color: '#4B7B9C' }}>Esqueci minha senha</p>
         </form>
       </div>
     </div>

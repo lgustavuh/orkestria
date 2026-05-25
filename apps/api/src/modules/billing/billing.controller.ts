@@ -19,7 +19,7 @@ export class BillingController {
   @ApiOperation({ summary: 'Criar cliente no Asaas' })
   createCustomer(
     @Param('tenantId') tenantId: string,
-    @Body() body: { name: string; email: string; cpfCnpj?: string; phone?: string },
+    @Body() body: { name: string; email: string; cpfCnpj: string; phone?: string },
   ) {
     return this.billing.createCustomer(tenantId, body);
   }

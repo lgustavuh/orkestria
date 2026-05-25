@@ -27,7 +27,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/activity', label: 'Atividade', icon: Activity },
   { href: '/dashboard/automations', label: 'Automações', icon: Layers, roles: ['ADMIN', 'STRATEGIST'] },
   { href: '/dashboard/clients', label: 'Clientes', icon: Building2, roles: ['ADMIN', 'STRATEGIST'] },
-  { href: '/dashboard/backup', label: 'Backup', icon: HardDrive, roles: ['ADMIN', 'STRATEGIST'] },
+  // { href: '/dashboard/backup', label: 'Backup', icon: HardDrive, roles: ['ADMIN', 'STRATEGIST'] },
   { href: '/dashboard/admin', label: 'Administração', icon: Users, roles: ['ADMIN', 'STRATEGIST'] },
 ];
 

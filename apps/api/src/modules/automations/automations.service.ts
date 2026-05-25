@@ -33,7 +33,7 @@ export class AutomationsService {
     });
   }
 
-  async findAll(query: { projectId?: string; trigger?: string; isActive?: boolean }) {
+  async findAll(query: { projectId?: string; trigger?: string; isActive?: boolean }, tenantId?: string | null) {
     const where: any = {};
     if (query.projectId) where.projectId = query.projectId;
     if (query.trigger) where.trigger = query.trigger;

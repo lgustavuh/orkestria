@@ -14,6 +14,7 @@ import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @ApiTags('Approvals')
 @ApiBearerAuth()
@@ -42,8 +43,9 @@ export class ApprovalsController {
   findAll(
     @CurrentUser() user: any,
     @Query() query: { projectId?: string; status?: string; type?: string; page?: number; limit?: number },
+    @CurrentTenant() tenantId: string,
   ) {
-    return this.approvals.findAll(user.sub, user.roles, query);
+    return this.approvals.findAll(user.sub, user.roles, query, tenantId);
   }
 
   @Patch(':id')

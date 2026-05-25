@@ -87,7 +87,7 @@ export function KanbanBoard({ tasks, onStatusChange }: Props) {
                       borderRadius: col.key === 'IN_REVIEW' ? '0 12px 12px 0' : 'var(--radius)',
                     }}>
                     <p className="text-[12px] font-medium mb-2" style={{ color: isDone ? 'var(--fg-muted)' : 'var(--fg)', textDecoration: isDone ? 'line-through' : 'none' }}>{task.title}</p>
-                    {col.key === 'IN_REVIEW' && <p className="text-[9px] mb-2" style={{ color: '#7c6ef0' }}>aguardando cliente</p>}
+                    {col.key === 'IN_REVIEW' && <p className="text-[9px] mb-2" style={{ color: '#4B7B9C' }}>aguardando cliente</p>}
                     <div className="flex items-center justify-between">
                       <span className="text-[9px] px-1.5 py-0.5" style={{ background: p.bg, color: p.color, borderRadius: '5px' }}>{p.label}</span>
                       {task.assignee && <Avatar src={task.assignee.avatarUrl} firstName={task.assignee.firstName} lastName={task.assignee.lastName} size="xs" />}

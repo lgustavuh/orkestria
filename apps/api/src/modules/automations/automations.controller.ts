@@ -14,6 +14,7 @@ import { AutomationsService } from './automations.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../../common/decorators/roles.decorator';
+import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 
 @ApiTags('Automations')
 @ApiBearerAuth()
@@ -31,8 +32,8 @@ export class AutomationsController {
 
   @Get()
   @ApiOperation({ summary: 'Listar automações' })
-  findAll(@Query() query: { projectId?: string; trigger?: string; isActive?: boolean }) {
-    return this.automations.findAll(query);
+  findAll(@Query() query: { projectId?: string; trigger?: string; isActive?: boolean }, @CurrentTenant() tenantId: string) {
+    return this.automations.findAll(query, tenantId);
   }
 
   @Get(':id')

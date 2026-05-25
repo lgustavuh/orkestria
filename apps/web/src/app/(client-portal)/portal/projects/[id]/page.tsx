@@ -3,20 +3,25 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { api } from '@/lib/api';
-import { ArrowLeft, Users, Download, CheckCircle2, XCircle, MessageSquare, Clock, FileText } from 'lucide-react';
+import { formatDateBR } from '@/lib/date';
+import { ArrowLeft, Users, Download, CheckCircle2, XCircle, MessageSquare, Clock, FileText, Check } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar } from '@/components/ui/avatar';
 
 export default function PortalProjectPage() {
   const { id } = useParams<{ id: string }>();
   const [project, setProject] = useState<any>(null);
-  const [deliverables, setDeliverables] = useState<any[]>([]);
+  const [deliverableFiles, setDeliverableFiles] = useState<any[]>([]);
+  const [completedTasks, setCompletedTasks] = useState<any[]>([]);
   const [timeline, setTimeline] = useState<any>(null);
   const [tab, setTab] = useState<'overview' | 'deliverables' | 'approvals'>('overview');
 
   useEffect(() => {
     api.portalGetProject(id).then(setProject);
-    api.portalGetDeliverables(id).then(setDeliverables);
+    api.portalGetDeliverables(id).then((res: any) => {
+      if (Array.isArray(res)) { setDeliverableFiles(res); }
+      else { setDeliverableFiles(res.files || []); setCompletedTasks(res.completedTasks || []); }
+    });
     fetch(`${process.env.NEXT_PUBLIC_API_URL}/portal/projects/${id}/timeline`, {
       headers: { 'Authorization': `Bearer ${localStorage.getItem('accessToken')}` },
     }).then(r => r.json()).then(setTimeline);
@@ -46,7 +51,7 @@ export default function PortalProjectPage() {
           <span className="text-lg font-semibold">{project.progress}%</span>
         </div>
         <div className="w-full h-4 bg-gray-100 rounded-full overflow-hidden">
-          <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${project.progress}%` }} />
+          <div className="h-full bg-[#4B7B9C] rounded-full transition-all" style={{ width: `${project.progress}%` }} />
         </div>
 
         {/* Stage timeline */}
@@ -54,12 +59,12 @@ export default function PortalProjectPage() {
           {project.stages?.map((stage: any, i: number) => (
             <div key={i} className="flex-1">
               <div className={`h-2 rounded-full ${
-                stage.isActive ? 'bg-indigo-500' :
+                stage.isActive ? 'bg-[#4B7B9C]' :
                 stage.completedAt ? 'bg-emerald-400' :
                 'bg-gray-200'
               }`} />
               <p className={`text-[10px] text-center mt-1 ${
-                stage.isActive ? 'text-indigo-600 font-semibold' :
+                stage.isActive ? 'text-[#3A6280] font-semibold' :
                 stage.completedAt ? 'text-emerald-600' :
                 'text-gray-400'
               }`}>{stage.name}</p>
@@ -72,12 +77,12 @@ export default function PortalProjectPage() {
       <div className="flex gap-1 mb-6 border-b border-gray-200">
         {[
           { key: 'overview' as const, label: 'Visão geral' },
-          { key: 'deliverables' as const, label: `Entregas (${deliverables.length})` },
+          { key: 'deliverables' as const, label: `Entregas (${deliverableFiles.length + completedTasks.length})` },
           { key: 'approvals' as const, label: 'Aprovações' },
         ].map(t => (
           <button key={t.key} onClick={() => setTab(t.key)}
             className={`px-4 py-2.5 text-sm font-medium border-b-2 transition-colors ${
-              tab === t.key ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-gray-500'
+              tab === t.key ? 'border-[#4B7B9C] text-[#3A6280]' : 'border-transparent text-gray-500'
             }`}>
             {t.label}
           </button>
@@ -86,6 +91,14 @@ export default function PortalProjectPage() {
 
       {tab === 'overview' && (
         <div className="space-y-6">
+          {/* Project description */}
+          {project.description && (
+            <div className="card">
+              <h3 className="text-sm font-medium text-gray-500 mb-2">Descrição do projeto</h3>
+              <p className="text-sm leading-relaxed" style={{ color: 'var(--fg)', whiteSpace: 'pre-wrap' }}>{project.description}</p>
+            </div>
+          )}
+
           {/* Project info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="card">
@@ -93,8 +106,8 @@ export default function PortalProjectPage() {
               <div className="space-y-2 text-sm">
                 {project.objective && <p><span className="text-gray-500">Objetivo:</span> {project.objective}</p>}
                 {project.channels?.length > 0 && <p><span className="text-gray-500">Canais:</span> {project.channels.join(', ')}</p>}
-                {project.startDate && <p><span className="text-gray-500">Início:</span> {new Date(project.startDate).toLocaleDateString('pt-BR')}</p>}
-                {project.endDate && <p><span className="text-gray-500">Prazo:</span> {new Date(project.endDate).toLocaleDateString('pt-BR')}</p>}
+                {project.startDate && <p><span className="text-gray-500">Início:</span> {formatDateBR(project.startDate)}</p>}
+                {project.endDate && <p><span className="text-gray-500">Prazo:</span> {formatDateBR(project.endDate)}</p>}
               </div>
             </div>
 
@@ -121,17 +134,17 @@ export default function PortalProjectPage() {
               <div className="space-y-3">
                 {timeline.recentDeliverables?.map((f: any) => (
                   <div key={f.id} className="flex items-center gap-3 text-sm">
-                    <div className="w-2 h-2 rounded-full bg-indigo-400" />
+                    <div className="w-2 h-2 rounded-full bg-[#6B9AB8]" />
                     <FileText size={14} className="text-gray-400" />
                     <span>Entrega disponível: <strong>{f.originalName}</strong></span>
-                    <span className="text-xs text-gray-400 ml-auto">{new Date(f.createdAt).toLocaleDateString('pt-BR')}</span>
+                    <span className="text-xs text-gray-400 ml-auto">{formatDateBR(f.createdAt)}</span>
                   </div>
                 ))}
                 {timeline.approvals?.map((a: any) => (
                   <div key={a.id} className="flex items-center gap-3 text-sm">
                     <div className={`w-2 h-2 rounded-full ${a.status === 'APPROVED' ? 'bg-emerald-400' : a.status === 'PENDING' ? 'bg-amber-400' : 'bg-red-400'}`} />
                     <span>Aprovação: <strong>{a.title}</strong> — {a.status === 'PENDING' ? 'Pendente' : a.status === 'APPROVED' ? 'Aprovada' : 'Rejeitada'}</span>
-                    <span className="text-xs text-gray-400 ml-auto">{new Date(a.createdAt).toLocaleDateString('pt-BR')}</span>
+                    <span className="text-xs text-gray-400 ml-auto">{formatDateBR(a.createdAt)}</span>
                   </div>
                 ))}
               </div>
@@ -142,13 +155,28 @@ export default function PortalProjectPage() {
 
       {tab === 'deliverables' && (
         <div className="space-y-3">
-          {deliverables.length === 0 ? (
+          {deliverableFiles.length === 0 && completedTasks.length === 0 ? (
             <div className="card text-center py-12 text-gray-400 text-sm">Nenhuma entrega disponível ainda</div>
-          ) : (
-            deliverables.map((f: any) => (
+          ) : (<>
+            {completedTasks.map((t: any) => (
+              <div key={`task-${t.id}`} className="card flex items-center gap-4">
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: '#ecfdf5' }}>
+                  <Check size={20} style={{ color: '#059669' }} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">{t.title}</p>
+                  <div className="flex gap-3 text-xs text-gray-400 mt-0.5">
+                    <span>Concluída</span>
+                    {t.assignee && <span>{t.assignee.firstName} {t.assignee.lastName}</span>}
+                    {t.completedAt && <span>{formatDateBR(t.completedAt)}</span>}
+                  </div>
+                </div>
+              </div>
+            ))}
+            {deliverableFiles.map((f: any) => (
               <div key={f.id} className="card flex items-center gap-4">
-                <div className="w-10 h-10 rounded-lg bg-indigo-50 flex items-center justify-center">
-                  <FileText size={20} className="text-indigo-500" />
+                <div className="w-10 h-10 rounded-lg bg-[#EBF3F7] flex items-center justify-center">
+                  <FileText size={20} className="text-[#4B7B9C]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{f.originalName}</p>
@@ -156,7 +184,7 @@ export default function PortalProjectPage() {
                     <span>{(Number(f.sizeBytes) / 1048576).toFixed(1)} MB</span>
                     <span>v{f.version}</span>
                     <span>{f.uploadedBy?.firstName} {f.uploadedBy?.lastName}</span>
-                    <span>{new Date(f.createdAt).toLocaleDateString('pt-BR')}</span>
+                    <span>{formatDateBR(f.createdAt)}</span>
                   </div>
                   {f.description && <p className="text-xs text-gray-500 mt-1">{f.description}</p>}
                 </div>
@@ -165,8 +193,8 @@ export default function PortalProjectPage() {
                   <Download size={14} className="mr-1" /> Baixar
                 </button>
               </div>
-            ))
-          )}
+            ))}
+          </>)}
         </div>
       )}
 

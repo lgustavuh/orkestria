@@ -102,7 +102,7 @@ export function AvatarEditor({ file, onSave, onCancel }: Props) {
           <ZoomOut size={16} className="dark:text-gray-300" />
         </button>
         <input type="range" min="50" max="300" value={zoom * 100}
-          onChange={e => setZoom(Number(e.target.value) / 100)} className="w-32 accent-indigo-600" />
+          onChange={e => setZoom(Number(e.target.value) / 100)} className="w-32 accent-[#3A6280]" />
         <button onClick={() => setZoom(z => Math.min(3, z + 0.1))} className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
           <ZoomIn size={16} className="dark:text-gray-300" />
         </button>

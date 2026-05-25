@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { api } from '@/lib/api';
+import { formatDateBR } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -16,7 +17,7 @@ import Link from 'next/link';
 const STATUS_OPTIONS = [
   { value: 'TODO', label: 'A fazer', color: 'bg-gray-400' },
   { value: 'IN_PROGRESS', label: 'Em andamento', color: 'bg-sky-500' },
-  { value: 'IN_REVIEW', label: 'Em revisão', color: 'bg-violet-500' },
+  { value: 'IN_REVIEW', label: 'Em revisão', color: 'bg-[#4B7B9C]' },
   { value: 'BLOCKED', label: 'Bloqueada', color: 'bg-rose-500' },
   { value: 'DONE', label: 'Concluída', color: 'bg-emerald-500' },
 ];
@@ -160,7 +161,7 @@ export default function TaskDetailPage() {
               <h4 className="text-[11px] uppercase tracking-wider mb-3" style={{ color: "var(--fg-hint)", letterSpacing: "0.6px" }}>Arquivos</h4>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {files.map((f: any) => (
-                  <div key={f.id} className="group rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-indigo-300 dark:hover:border-indigo-700 transition-all">
+                  <div key={f.id} className="group rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:border-[#7BABC2] dark:hover:border-[#2A3F4E] transition-all">
                     <button onClick={() => openFile(f.id)} className="w-full h-24 bg-gray-50 dark:bg-gray-800 flex items-center justify-center relative overflow-hidden">
                       {isImage(f.mimeType) && previews[f.id] ? <img src={previews[f.id]} className="w-full h-full object-cover" /> : isImage(f.mimeType) ? <span className="text-3xl">🖼️</span> : f.mimeType?.includes('pdf') ? <span className="text-3xl">📄</span> : <FileText size={28} className="text-gray-300" />}
                       <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
@@ -188,7 +189,7 @@ export default function TaskDetailPage() {
                 <h4 className="text-[11px] uppercase tracking-wider flex items-center gap-2" style={{ color: "var(--fg-hint)", letterSpacing: "0.6px" }}>
                   <FolderOpen size={13} style={{ color: "var(--brand)" }} /> Arquivos do projeto ({projectFiles.length})
                 </h4>
-                <button onClick={() => setShowProjectFiles(!showProjectFiles)} className="text-xs text-indigo-600 dark:text-indigo-400 font-medium">
+                <button onClick={() => setShowProjectFiles(!showProjectFiles)} className="text-xs text-[#3A6280] dark:text-[#6B9AB8] font-medium">
                   {showProjectFiles ? 'Ocultar' : 'Ver arquivos'}
                 </button>
               </div>
@@ -207,7 +208,7 @@ export default function TaskDetailPage() {
                         <Download size={12} className="text-gray-400" />
                       </button>
                       <button onClick={() => attachProjectFile(f.id)}
-                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 text-xs font-medium">
+                        className="flex items-center gap-1 px-2 py-1 rounded-lg bg-[#EBF3F7] dark:bg-[#1E2F3A]/20 text-[#3A6280] dark:text-[#6B9AB8] hover:bg-[#D6E7EF] dark:hover:bg-[#1E2F3A]/40 text-xs font-medium">
                         <Link2 size={10} /> Anexar
                       </button>
                     </div>
@@ -331,12 +332,12 @@ export default function TaskDetailPage() {
             </div>
             {task.dueDate && (
               <div className={`flex items-center gap-2 ${new Date(task.dueDate) < new Date() && task.status !== 'DONE' ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
-                <Calendar size={14} /><span>{new Date(task.dueDate).toLocaleDateString('pt-BR')}</span>
+                <Calendar size={14} /><span>{formatDateBR(task.dueDate)}</span>
               </div>
             )}
             {task.createdAt && (
               <div className="flex items-center gap-2 text-gray-400">
-                <Clock size={14} /><span className="text-xs">Criada em {new Date(task.createdAt).toLocaleDateString('pt-BR')}</span>
+                <Clock size={14} /><span className="text-xs">Criada em {formatDateBR(task.createdAt)}</span>
               </div>
             )}
           </div>

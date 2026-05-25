@@ -32,8 +32,8 @@ export class BackupService {
       createdBy: b.user ? `${b.user.firstName} ${b.user.lastName}` : 'Sistema',
       fileName: b.details?.fileName || 'backup.sql',
       sizeBytes: b.details?.sizeBytes || 0,
-      s3Key: b.details?.s3Key || null,
-      type: b.details?.type || 'full',
+      s3Key: b.details?.s3Key || b.details?.dbBackup || null,
+      type: b.details?.type || 'db',
     }));
   }
 
@@ -273,6 +273,102 @@ export class BackupService {
       try { fs.unlinkSync(filePath); } catch {}
       if (err instanceof BadRequestException) throw err;
       throw new BadRequestException(`Erro ao restaurar: ${err.message}`);
+    }
+  }
+
+  /**
+   * Backup all MinIO buckets by listing and copying objects metadata
+   */
+  private async backupMinioMetadata(): Promise<string> {
+    const lines: string[] = [];
+    lines.push('-- MinIO Buckets Metadata');
+    lines.push(`-- Generated: ${new Date().toISOString()}`);
+    
+    try {
+      // List all tenants to find their buckets
+      const tenants = await this.prisma.tenant.findMany({ select: { slug: true } });
+      const bucketNames = ['orkestria-files', ...tenants.map(t => `${t.slug}-files`), 'backups', 'restore'];
+      
+      for (const bucket of bucketNames) {
+        try {
+          const objects = await this.s3.listObjects(bucket);
+          lines.push(`\n-- Bucket: ${bucket} (${objects.length} objects)`);
+          for (const obj of objects) {
+            lines.push(`-- ${obj.key} (${obj.size} bytes, ${obj.lastModified})`);
+          }
+        } catch {
+          lines.push(`-- Bucket: ${bucket} (not found or empty)`);
+        }
+      }
+    } catch (err) {
+      lines.push(`-- Error listing buckets: ${(err as any).message}`);
+    }
+    
+    return lines.join('\n');
+  }
+
+  async createFullBackup(userId: string) {
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    const tmpDir = os.tmpdir();
+
+    try {
+      // 1. Database backup
+      const dbBackup = await this.createBackup(userId);
+
+      // 2. MinIO metadata backup
+      const minioMeta = await this.backupMinioMetadata();
+      const minioFileName = `minio-metadata-${timestamp}.txt`;
+      const minioPath = path.join(tmpDir, minioFileName);
+      fs.writeFileSync(minioPath, minioMeta, 'utf-8');
+      
+      // Upload MinIO metadata to backups bucket
+      const minioS3Key = `backups/${minioFileName}`;
+      await this.s3.uploadBuffer(minioS3Key, fs.readFileSync(minioPath), 'text/plain');
+      fs.unlinkSync(minioPath);
+
+      // 3. Copy all tenant bucket files to backup location
+      const tenants = await this.prisma.tenant.findMany({ select: { slug: true } });
+      let totalFiles = 0;
+      for (const tenant of tenants) {
+        const bucketName = `${tenant.slug}-files`;
+        try {
+          const objects = await this.s3.listObjects(bucketName);
+          for (const obj of objects) {
+            try {
+              const data = await this.s3.downloadObject(obj.key, bucketName);
+              const backupKey = `backups/minio-${timestamp}/${bucketName}/${obj.key}`;
+              await this.s3.uploadBuffer(backupKey, data, 'application/octet-stream');
+              totalFiles++;
+            } catch {}
+          }
+        } catch {}
+      }
+
+      // Also backup orkestria-files
+      try {
+        const mainObjects = await this.s3.listObjects('orkestria-files');
+        for (const obj of mainObjects) {
+          try {
+            const data = await this.s3.downloadObject(obj.key, 'orkestria-files');
+            const backupKey = `backups/minio-${timestamp}/orkestria-files/${obj.key}`;
+            await this.s3.uploadBuffer(backupKey, data, 'application/octet-stream');
+            totalFiles++;
+          } catch {}
+        }
+      } catch {}
+
+      await this.prisma.auditLog.create({
+        data: { userId, action: 'CREATE' as any, resource: 'backup', details: { type: 'full', timestamp, s3Key: dbBackup.s3Key, fileName: dbBackup.fileName, sizeBytes: dbBackup.sizeBytes, dbBackup: dbBackup.s3Key, minioFiles: totalFiles } },
+      }).catch(() => {});
+
+      return {
+        success: true,
+        database: dbBackup,
+        minio: { metadataKey: minioS3Key, totalFiles },
+        message: `Backup completo: banco + ${totalFiles} arquivos do MinIO`,
+      };
+    } catch (err: any) {
+      throw new BadRequestException(`Erro no backup completo: ${err.message}`);
     }
   }
 

@@ -6,20 +6,20 @@
   --bg: #faf9f7;
   --bg-secondary: #f5f3f0;
   --bg-card: #ffffff;
-  --bg-sidebar: #2d2a3e;
-  --bg-sidebar-hover: #3d3a55;
-  --bg-sidebar-active: #3d3a55;
-  --fg: #2d2a3e;
+  --bg-sidebar: #2A3F4E;
+  --bg-sidebar-hover: #354D5E;
+  --bg-sidebar-active: #354D5E;
+  --fg: #2A3F4E;
   --fg-muted: #8a8698;
   --fg-hint: #a09b8e;
-  --fg-sidebar: #9896a8;
+  --fg-sidebar: #8DA4B4;
   --fg-sidebar-active: #e8e6f0;
   --border: #ece9e3;
   --border-hover: #e2dfd8;
-  --brand: #7c6ef0;
-  --brand-hover: #6b5ce0;
-  --brand-light: #f0eeff;
-  --brand-text: #5b4fc7;
+  --brand: #4B7B9C;
+  --brand-hover: #3D6A88;
+  --brand-light: #EBF3F7;
+  --brand-text: #3A6280;
   --radius: 12px;
   --radius-lg: 14px;
   --radius-xl: 18px;
@@ -33,16 +33,16 @@
   --bg-sidebar-hover: #222240;
   --bg-sidebar-active: #2a2a48;
   --fg: #e8e6f0;
-  --fg-muted: #9896a8;
+  --fg-muted: #8DA4B4;
   --fg-hint: #6e6c80;
   --fg-sidebar: #6e6c80;
   --fg-sidebar-active: #e8e6f0;
   --border: #3a3858;
   --border-hover: #4a4868;
-  --brand: #9b8ff8;
-  --brand-hover: #b0a5fc;
-  --brand-light: #2d2a5e;
-  --brand-text: #b0a5fc;
+  --brand: #6B9AB8;
+  --brand-hover: #7DAFC8;
+  --brand-light: #1E2F3A;
+  --brand-text: #7DAFC8;
 }
 
 body {
@@ -102,7 +102,7 @@ body {
 }
 
 @layer utilities {
-  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #3d3a55 transparent; }
+  .scrollbar-thin { scrollbar-width: thin; scrollbar-color: #354D5E transparent; }
 }
 
 [draggable="true"] { cursor: grab; }

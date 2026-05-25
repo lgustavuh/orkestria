@@ -56,8 +56,8 @@ export default function PortalNotificationsPage() {
       ) : (
         <div className="space-y-2">
           {notifs.data.map((n: any) => (
-            <div key={n.id} className={`card flex items-start gap-3 ${!n.isRead ? 'bg-indigo-50/30 border-indigo-100' : ''}`}>
-              {!n.isRead && <span className="w-2 h-2 rounded-full bg-indigo-500 mt-1.5 flex-shrink-0" />}
+            <div key={n.id} className={`card flex items-start gap-3 ${!n.isRead ? 'bg-[#EBF3F7]/30 border-[#D6E7EF]' : ''}`}>
+              {!n.isRead && <span className="w-2 h-2 rounded-full bg-[#4B7B9C] mt-1.5 flex-shrink-0" />}
               <div className="flex-1">
                 <p className={`text-sm ${!n.isRead ? 'font-medium' : 'text-gray-600'}`}>{n.title}</p>
                 {n.message && <p className="text-xs text-gray-400 mt-0.5">{n.message}</p>}

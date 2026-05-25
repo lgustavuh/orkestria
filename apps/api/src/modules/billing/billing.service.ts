@@ -42,14 +42,31 @@ export class BillingService {
   async createCustomer(tenantId: string, data: {
     name: string;
     email: string;
-    cpfCnpj?: string;
+    cpfCnpj: string;
     phone?: string;
   }) {
+    if (!data.cpfCnpj) {
+      throw new BadRequestException('CPF ou CNPJ é obrigatório para criar cobrança');
+    }
+
+    const tenant = await this.prisma.tenant.findUnique({ where: { id: tenantId } });
+    const cleanCpfCnpj = data.cpfCnpj.replace(/[^0-9]/g, '');
+    const cleanPhone = data.phone?.replace(/[^0-9]/g, '') || undefined;
+
+    // If customer already exists in Asaas, update it
+    if (tenant?.asaasCustomerId) {
+      try {
+        const updated = await this.asaasRequest('PUT', `/customers/${tenant.asaasCustomerId}`, {
+          name: data.name, email: data.email, cpfCnpj: cleanCpfCnpj, phone: cleanPhone,
+        });
+        return updated;
+      } catch {
+        // If update fails, create new
+      }
+    }
+
     const customer = await this.asaasRequest('POST', '/customers', {
-      name: data.name,
-      email: data.email,
-      cpfCnpj: data.cpfCnpj,
-      phone: data.phone,
+      name: data.name, email: data.email, cpfCnpj: cleanCpfCnpj, phone: cleanPhone,
       externalReference: tenantId,
     });
 
@@ -98,14 +115,20 @@ export class BillingService {
 
     if (payments.data?.length > 0) {
       const payment = payments.data[0];
+      const invoiceUrl = payment.invoiceUrl || `${this.apiUrl.replace('/api/v3', '').replace('/v3', '')}/i/${payment.id}`;
+      
       if (payment.billingType === 'PIX') {
-        const pix = await this.asaasRequest('GET', `/payments/${payment.id}/pixQrCode`);
-        return { type: 'PIX', paymentId: payment.id, qrCode: pix.encodedImage, copyPaste: pix.payload, dueDate: payment.dueDate };
+        try {
+          const pix = await this.asaasRequest('GET', `/payments/${payment.id}/pixQrCode`);
+          return { type: 'PIX', paymentId: payment.id, qrCode: pix.encodedImage, copyPaste: pix.payload, invoiceUrl, dueDate: payment.dueDate };
+        } catch {
+          return { type: 'PIX', paymentId: payment.id, invoiceUrl, dueDate: payment.dueDate };
+        }
       }
       if (payment.billingType === 'BOLETO') {
-        return { type: 'BOLETO', paymentId: payment.id, bankSlipUrl: payment.bankSlipUrl, dueDate: payment.dueDate };
+        return { type: 'BOLETO', paymentId: payment.id, bankSlipUrl: payment.bankSlipUrl, invoiceUrl, dueDate: payment.dueDate };
       }
-      return { type: payment.billingType, paymentId: payment.id, invoiceUrl: payment.invoiceUrl, dueDate: payment.dueDate };
+      return { type: payment.billingType, paymentId: payment.id, invoiceUrl, dueDate: payment.dueDate };
     }
 
     return { type: 'NONE', message: 'Nenhum pagamento pendente' };

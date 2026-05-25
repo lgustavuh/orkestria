@@ -8,7 +8,7 @@ import { Avatar } from '@/components/ui/avatar';
 import { FolderKanban, CheckSquare, ThumbsUp, AlertCircle } from 'lucide-react';
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, hasRole } = useAuth();
   const [stats, setStats] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -40,7 +40,7 @@ export default function DashboardPage() {
   const strokeDash = (pct / 100) * circumference;
 
   const metrics = [
-    { label: 'Projetos ativos', value: stats?.activeProjects ?? '-', icon: FolderKanban, iconBg: '#f0eeff', iconColor: '#7c6ef0', color: '#2d2a3e' },
+    { label: 'Projetos ativos', value: stats?.activeProjects ?? '-', icon: FolderKanban, iconBg: '#EBF3F7', iconColor: '#4B7B9C', color: '#2A3F4E' },
     { label: 'Tarefas concluídas', value: doneTasks || '-', icon: CheckSquare, iconBg: '#ecfdf5', iconColor: '#059669', color: '#059669' },
     { label: 'Aprovações', value: stats?.pendingApprovals ?? '-', icon: ThumbsUp, iconBg: '#fef3e2', iconColor: '#d97706', color: '#d97706' },
     { label: 'Tarefas atrasadas', value: stats?.tasksByStatus?.BLOCKED || 0, icon: AlertCircle, iconBg: '#fee2e2', iconColor: '#dc2626', color: '#dc2626' },
@@ -49,7 +49,7 @@ export default function DashboardPage() {
   return (
     <div>
       {/* Trial banner */}
-      {tenantStatus?.isTrial && tenantStatus?.daysLeft !== null && (
+      {tenantStatus?.isTrial && tenantStatus?.daysLeft !== null && (hasRole('ADMIN') || hasRole('STRATEGIST')) && (
         <div className="flex items-center justify-between p-3 mb-4" style={{ background: tenantStatus.daysLeft <= 3 ? '#fef3e2' : 'var(--brand-light)', borderRadius: 'var(--radius)' }}>
           <p className="text-[12px]" style={{ color: tenantStatus.daysLeft <= 3 ? '#92400e' : 'var(--brand-text)' }}>
             {tenantStatus.daysLeft > 0
@@ -127,8 +127,8 @@ export default function DashboardPage() {
                     <td style={{ padding: '10px 14px', color: 'var(--fg-muted)' }}>{p.client?.name || '-'}</td>
                     <td style={{ padding: '10px 14px' }}>
                       <span className="badge" style={{
-                        background: p.status === 'ACTIVE' ? '#ecfdf5' : p.status === 'COMPLETED' ? '#f0eeff' : '#fef3e2',
-                        color: p.status === 'ACTIVE' ? '#059669' : p.status === 'COMPLETED' ? '#7c6ef0' : '#d97706',
+                        background: p.status === 'ACTIVE' ? '#ecfdf5' : p.status === 'COMPLETED' ? '#EBF3F7' : '#fef3e2',
+                        color: p.status === 'ACTIVE' ? '#059669' : p.status === 'COMPLETED' ? '#4B7B9C' : '#d97706',
                       }}>{p.status === 'ACTIVE' ? 'ativo' : p.status === 'COMPLETED' ? 'concluído' : p.status?.toLowerCase()}</span>
                     </td>
                     <td style={{ padding: '10px 14px' }}>

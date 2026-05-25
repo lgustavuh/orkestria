@@ -15,7 +15,7 @@ const STATUS_STYLE: Record<string, { bg: string; color: string; label: string }>
 
 const PLAN_STYLE: Record<string, { bg: string; color: string }> = {
   STARTER: { bg: '#e0f2fe', color: '#0369a1' },
-  PRO: { bg: '#f0eeff', color: '#7c6ef0' },
+  PRO: { bg: '#EBF3F7', color: '#4B7B9C' },
   AGENCY: { bg: '#fce7f3', color: '#db2777' },
 };
 
@@ -48,7 +48,7 @@ export default function TenantsListPage() {
     !search || t.name.toLowerCase().includes(search.toLowerCase()) || t.ownerEmail.toLowerCase().includes(search.toLowerCase()) || t.slug.includes(search.toLowerCase())
   );
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Sao_Paulo' });
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--brand-light)', borderTopColor: 'var(--brand)' }} /></div>;
 

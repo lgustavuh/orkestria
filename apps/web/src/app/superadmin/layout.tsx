@@ -4,12 +4,13 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import { LayoutDashboard, Building2, Settings, LogOut, Shield } from 'lucide-react';
+import { LayoutDashboard, Building2, Settings, LogOut, Shield, Database } from 'lucide-react';
 
 const NAV = [
   { href: '/superadmin', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/superadmin/tenants', label: 'Agências', icon: Building2 },
   { href: '/superadmin/settings', label: 'Configurações', icon: Settings },
+  { href: '/superadmin/backup', label: 'Backup', icon: Database },
 ];
 
 export default function SuperAdminLayout({ children }: { children: React.ReactNode }) {
@@ -27,13 +28,13 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="min-h-screen flex" style={{ background: 'var(--bg)' }}>
-      <aside className="w-52 flex flex-col h-screen sticky top-0" style={{ background: '#1a1625' }}>
+      <aside className="w-52 flex flex-col h-screen sticky top-0" style={{ background: '#1E2F3A' }}>
         <div className="px-4 pt-5 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-7 h-7 flex items-center justify-center" style={{ background: '#ef4444', borderRadius: '8px' }}>
               <Shield size={14} color="white" />
             </div>
-            <span className="text-[14px] font-medium" style={{ color: '#e8e6f0' }}>Super Admin</span>
+            <span className="text-[14px] font-medium" style={{ color: '#E0EBF0' }}>Super Admin</span>
           </div>
         </div>
 
@@ -51,11 +52,11 @@ export default function SuperAdminLayout({ children }: { children: React.ReactNo
           })}
         </nav>
 
-        <div className="p-2" style={{ borderTop: '1px solid #2d2640' }}>
-          <Link href="/dashboard" className="flex items-center gap-2 px-3 py-1.5 text-[11px]" style={{ color: '#7c7891', borderRadius: '8px' }}>
+        <div className="p-2" style={{ borderTop: '1px solid #354D5E' }}>
+          <Link href="/dashboard" className="flex items-center gap-2 px-3 py-1.5 text-[11px]" style={{ color: '#8DA4B4', borderRadius: '8px' }}>
             <Settings size={12} /> Ir ao Dashboard
           </Link>
-          <button onClick={() => { logout(); router.push('/login'); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] text-left hover:text-red-400" style={{ color: '#7c7891', borderRadius: '8px' }}>
+          <button onClick={() => { logout(); router.push('/login'); }} className="w-full flex items-center gap-2 px-3 py-1.5 text-[11px] text-left hover:text-red-400" style={{ color: '#8DA4B4', borderRadius: '8px' }}>
             <LogOut size={12} /> Sair
           </button>
         </div>

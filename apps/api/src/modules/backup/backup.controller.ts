@@ -10,7 +10,7 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 @ApiBearerAuth()
 @Controller('backup')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN', 'STRATEGIST')
+@Roles('ADMIN', 'STRATEGIST', 'SUPER_ADMIN')
 export class BackupController {
   constructor(private backup: BackupService) {}
 
@@ -20,8 +20,15 @@ export class BackupController {
     return this.backup.listBackups();
   }
 
+  @Post('full')
+  @Roles('SUPER_ADMIN')
+  @ApiOperation({ summary: 'Backup completo: banco + MinIO' })
+  createFull(@CurrentUser('sub') userId: string) {
+    return this.backup.createFullBackup(userId);
+  }
+
   @Post()
-  @ApiOperation({ summary: 'Criar backup completo' })
+  @ApiOperation({ summary: 'Criar backup do banco' })
   create(@CurrentUser('sub') userId: string) {
     return this.backup.createBackup(userId);
   }

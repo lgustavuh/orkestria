@@ -32,7 +32,7 @@ export function Avatar({
   }
 
   return (
-    <div className={`${sizeClasses[size]} rounded-full bg-indigo-100 flex items-center justify-center font-medium text-indigo-700`}>
+    <div className={`${sizeClasses[size]} rounded-full bg-[#D6E7EF] flex items-center justify-center font-medium text-[#2A3F4E]`}>
       {initials}
     </div>
   );
@@ -42,7 +42,7 @@ export function Avatar({
 export function Spinner({ size = 20 }: { size?: number }) {
   return (
     <svg
-      className="animate-spin text-indigo-500"
+      className="animate-spin text-[#4B7B9C]"
       width={size}
       height={size}
       viewBox="0 0 24 24"
@@ -100,7 +100,7 @@ export function Badge({
     warning: 'bg-amber-100 text-amber-700',
     danger: 'bg-red-100 text-red-700',
     info: 'bg-sky-100 text-sky-700',
-    purple: 'bg-violet-100 text-violet-700',
+    purple: 'bg-[#D6E7EF] text-[#2A3F4E]',
   };
 
   return (
@@ -114,7 +114,7 @@ export function Badge({
 export function ProgressBar({
   value,
   height = 6,
-  color = 'bg-indigo-500',
+  color = 'bg-[#4B7B9C]',
   className = '',
 }: {
   value: number;

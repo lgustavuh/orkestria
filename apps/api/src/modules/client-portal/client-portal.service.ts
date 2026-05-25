@@ -120,28 +120,29 @@ export class ClientPortalService {
   async getDeliverables(projectId: string, userId: string) {
     await this.ensureClientAccess(projectId, userId);
 
-    return this.prisma.file.findMany({
-      where: {
-        projectId,
-        visibility: 'CLIENT_SHARED',
-        isDeleted: false,
-      },
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        fileName: true,
-        originalName: true,
-        mimeType: true,
-        sizeBytes: true,
-        description: true,
-        version: true,
-        createdAt: true,
-        uploadedBy: { select: { firstName: true, lastName: true } },
-        task: { select: { id: true, title: true } },
-      },
-    });
-  }
+    const [files, completedTasks] = await Promise.all([
+      this.prisma.file.findMany({
+        where: { projectId, visibility: 'CLIENT_SHARED', isDeleted: false },
+        orderBy: { createdAt: 'desc' },
+        select: {
+          id: true, fileName: true, originalName: true, mimeType: true,
+          sizeBytes: true, description: true, version: true, createdAt: true,
+          uploadedBy: { select: { firstName: true, lastName: true } },
+          task: { select: { id: true, title: true } },
+        },
+      }),
+      this.prisma.task.findMany({
+        where: { projectId, status: 'DONE' as any, isDeleted: false },
+        orderBy: { completedAt: 'desc' },
+        select: {
+          id: true, title: true, description: true, completedAt: true,
+          assignee: { select: { firstName: true, lastName: true } },
+        },
+      }),
+    ]);
 
+    return { files, completedTasks };
+  }
   async getApprovals(userId: string, query: { projectId?: string; status?: string }) {
     const clientIds = await this.getClientIdsForUser(userId);
 

@@ -4,6 +4,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/api';
 
+const maskCpfCnpj = (v: string) => {
+  const nums = v.replace(/\D/g, '').slice(0, 14);
+  if (nums.length <= 11) return nums.replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  return nums.replace(/(\d{2})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1.$2').replace(/(\d{3})(\d)/, '$1/$2').replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+};
+
+const maskPhone = (v: string) => {
+  const nums = v.replace(/\D/g, '').slice(0, 11);
+  if (nums.length <= 10) return nums.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2');
+  return nums.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2');
+};
+
 const PLANS = [
   { id: 'STARTER', name: 'Starter', price: 'R$ 97', desc: '3 usuários · 5 projetos · 2GB' },
   { id: 'PRO', name: 'Pro', price: 'R$ 247', desc: '10 usuários · 20 projetos · 10GB', popular: true },
@@ -52,7 +64,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#2d2a3e' }}>
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: '#2A3F4E' }}>
       <div className="w-full max-w-lg" style={{ background: 'var(--bg-card)', borderRadius: '18px', padding: '36px', boxShadow: '0 4px 24px rgba(0,0,0,0.12)' }}>
         <div className="text-center mb-6">
           <img src="/logo-icon.svg" alt="Orkestria" className="w-11 h-11 mx-auto" style={{ borderRadius: '12px' }} />
@@ -104,7 +116,7 @@ export default function RegisterPage() {
               </div>
               <div>
                 <label className="block text-[11px] mb-1" style={{ color: 'var(--fg-muted)' }}>CPF ou CNPJ</label>
-                <input className="input" value={form.ownerDocument} onChange={e => setForm(f => ({ ...f, ownerDocument: e.target.value }))} placeholder="00.000.000/0000-00" />
+                <input className="input" value={form.ownerDocument} onChange={e => setForm(f => ({ ...f, ownerDocument: maskCpfCnpj(e.target.value) }))} placeholder="000.000.000-00" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-3">
@@ -114,7 +126,7 @@ export default function RegisterPage() {
               </div>
               <div>
                 <label className="block text-[11px] mb-1" style={{ color: 'var(--fg-muted)' }}>Telefone</label>
-                <input className="input" value={form.ownerPhone} onChange={e => setForm(f => ({ ...f, ownerPhone: e.target.value }))} placeholder="(31) 99999-9999" />
+                <input className="input" value={form.ownerPhone} onChange={e => setForm(f => ({ ...f, ownerPhone: maskPhone(e.target.value) }))} placeholder="(31) 99999-9999" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 mb-4">

@@ -38,9 +38,14 @@ export class FilesService {
     private s3: S3Service,
   ) {}
 
-  async findAll(userId: string, roles: string[], query: { taskId?: string; projectId?: string }) {
+  async findAll(userId: string, roles: string[], query: { taskId?: string; projectId?: string }, tenantId?: string | null) {
     const isAdmin = roles.includes('ADMIN') || roles.includes('STRATEGIST');
     const where: any = { isDeleted: false };
+
+    // Filter by tenant - only show files from projects of this tenant
+    if (tenantId) {
+      where.project = { ...where.project, tenantId };
+    }
 
     if (query.taskId) {
       where.taskId = query.taskId;
@@ -213,7 +218,7 @@ export class FilesService {
     return this.prisma.file.update({ where: { id }, data: { isDeleted: true } });
   }
 
-  async getDownloadUrlByKey(s3Key: string, userId?: string, roles?: string[]) {
+  async getDownloadUrlByKey(s3Key: string, userId?: string, roles?: string[], tenantId?: string | null) {
     const file = await this.prisma.file.findFirst({
       where: { s3Key, isDeleted: false },
       include: { project: { select: { members: { select: { userId: true } } } } },
@@ -230,7 +235,12 @@ export class FilesService {
       }
     }
 
-    const fileBucket = file?.s3Bucket || undefined;
+    let fileBucket = (file as any)?.s3Bucket || undefined;
+    // Resolve bucket from tenant if not stored on file
+    if (!fileBucket && tenantId) {
+      const tenant = await this.prisma.tenant.findUnique({ where: { id: tenantId }, select: { slug: true } });
+      if (tenant) fileBucket = `${tenant.slug}-files`;
+    }
     const url = await this.s3.getPresignedDownloadUrl(s3Key, s3Key.split('/').pop() || 'download', fileBucket);
     return { downloadUrl: url };
   }

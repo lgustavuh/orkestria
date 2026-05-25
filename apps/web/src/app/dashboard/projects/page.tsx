@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { formatDateBR } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { Plus, Search, Trash2, Edit, Filter, X } from 'lucide-react';
@@ -43,8 +44,8 @@ export default function ProjectsPage() {
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-semibold dark:text-white">Projetos</h2>
         <div className="flex gap-2">
-          <button onClick={() => setShowFilters(!showFilters)} className={`btn-secondary text-sm ${hasFilters ? 'ring-1 ring-indigo-300 dark:ring-indigo-700' : ''}`}>
-            <Filter size={14} className="mr-1" /> Filtros {hasFilters && <span className="ml-1 w-2 h-2 rounded-full bg-indigo-500 inline-block" />}
+          <button onClick={() => setShowFilters(!showFilters)} className={`btn-secondary text-sm ${hasFilters ? 'ring-1 ring-[#7BABC2] dark:ring-[#2A3F4E]' : ''}`}>
+            <Filter size={14} className="mr-1" /> Filtros {hasFilters && <span className="ml-1 w-2 h-2 rounded-full bg-[#4B7B9C] inline-block" />}
           </button>
           {canManage && <Link href="/dashboard/projects/new" className="btn-primary text-sm"><Plus size={14} className="mr-1" /> Novo</Link>}
         </div>
@@ -55,7 +56,7 @@ export default function ProjectsPage() {
         <div className="card mb-4">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-sm font-medium dark:text-white">Filtros</h4>
-            {hasFilters && <button onClick={clearFilters} className="text-xs text-indigo-600 dark:text-indigo-400 flex items-center gap-1"><X size={12} /> Limpar</button>}
+            {hasFilters && <button onClick={clearFilters} className="text-xs text-[#3A6280] dark:text-[#6B9AB8] flex items-center gap-1"><X size={12} /> Limpar</button>}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
@@ -108,13 +109,13 @@ export default function ProjectsPage() {
               {projects.data.map((p: any) => (
                 <tr key={p.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
                   <td className="px-4 py-3">
-                    <Link href={`/dashboard/projects/${p.id}`} className="font-medium hover:text-indigo-600 dark:text-gray-100 dark:hover:text-indigo-400">{p.name}</Link>
+                    <Link href={`/dashboard/projects/${p.id}`} className="font-medium hover:text-[#3A6280] dark:text-gray-100 dark:hover:text-[#6B9AB8]">{p.name}</Link>
                   </td>
                   <td className="px-4 py-3 text-gray-500 dark:text-gray-400 hidden md:table-cell">{p.client?.name || '—'}</td>
                   <td className="px-4 py-3"><span className={`badge ${statusBadge(p.status)}`}>{p.status}</span></td>
                   <td className="px-4 py-3 hidden sm:table-cell">
                     <div className="flex items-center gap-2">
-                      <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div className="h-full bg-indigo-500 rounded-full" style={{ width: `${p.progress}%` }} /></div>
+                      <div className="w-20 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"><div className="h-full bg-[#4B7B9C] rounded-full" style={{ width: `${p.progress}%` }} /></div>
                       <span className="text-xs text-gray-500 dark:text-gray-400">{p.progress}%</span>
                     </div>
                   </td>

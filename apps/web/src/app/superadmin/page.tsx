@@ -15,12 +15,12 @@ export default function SuperAdminDashboard() {
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--brand-light)', borderTopColor: 'var(--brand)' }} /></div>;
 
   const cards = [
-    { label: 'Total de agências', value: metrics?.totalTenants ?? 0, icon: Building2, iconBg: '#f0eeff', iconColor: '#7c6ef0', color: '#2d2a3e' },
+    { label: 'Total de agências', value: metrics?.totalTenants ?? 0, icon: Building2, iconBg: '#EBF3F7', iconColor: '#4B7B9C', color: '#2A3F4E' },
     { label: 'Agências ativas', value: metrics?.activeTenants ?? 0, icon: CheckCircle, iconBg: '#ecfdf5', iconColor: '#059669', color: '#059669' },
     { label: 'Em trial', value: metrics?.trialTenants ?? 0, icon: Clock, iconBg: '#fef3e2', iconColor: '#d97706', color: '#d97706' },
     { label: 'Suspensas', value: metrics?.suspendedTenants ?? 0, icon: XCircle, iconBg: '#fee2e2', iconColor: '#dc2626', color: '#dc2626' },
     { label: 'MRR (receita mensal)', value: `R$ ${(metrics?.mrr ?? 0).toLocaleString('pt-BR')}`, icon: DollarSign, iconBg: '#ecfdf5', iconColor: '#059669', color: '#059669' },
-    { label: 'Novos (30 dias)', value: metrics?.recentSignups ?? 0, icon: TrendingUp, iconBg: '#f0eeff', iconColor: '#7c6ef0', color: '#7c6ef0' },
+    { label: 'Novos (30 dias)', value: metrics?.recentSignups ?? 0, icon: TrendingUp, iconBg: '#EBF3F7', iconColor: '#4B7B9C', color: '#4B7B9C' },
     { label: 'Total de usuários', value: metrics?.totalUsers ?? 0, icon: Users, iconBg: '#e0f2fe', iconColor: '#0284c7', color: '#0284c7' },
     { label: 'Total de projetos', value: metrics?.totalProjects ?? 0, icon: FolderKanban, iconBg: '#fce7f3', iconColor: '#db2777', color: '#db2777' },
   ];

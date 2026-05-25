@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">Orkestria</h1>
+          <h1 className="text-3xl font-bold text-[#3A6280] dark:text-[#6B9AB8]">Orkestria</h1>
           <p className="mt-2 text-gray-500 dark:text-gray-400">Recupere sua senha</p>
         </div>
 
@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
               <p className="text-sm text-gray-500 mb-4">
                 Se o email estiver cadastrado, você receberá instruções para redefinir sua senha.
               </p>
-              <Link href="/login" className="text-sm text-indigo-600 hover:text-indigo-500">
+              <Link href="/login" className="text-sm text-[#3A6280] hover:text-[#4B7B9C]">
                 Voltar ao login
               </Link>
             </div>

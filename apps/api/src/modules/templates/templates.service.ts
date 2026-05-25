@@ -7,9 +7,11 @@ const DEFAULT_STAGES = ['Backlog', 'Planejamento', 'Produção', 'Revisão', 'Ap
 export class TemplatesService {
   constructor(private prisma: PrismaService) {}
 
-  async findAll() {
+  async findAll(tenantId?: string | null) {
+    const where: any = { isActive: true };
+    if (tenantId) where.tenantId = tenantId;
     return this.prisma.projectTemplate.findMany({
-      where: { isActive: true },
+      where,
       include: {
         tasks: { orderBy: { order: 'asc' } },
         createdBy: { select: { firstName: true, lastName: true } },

@@ -16,7 +16,7 @@ interface SearchResult {
 }
 
 const TYPE_CONFIG = {
-  project: { icon: FolderKanban, color: 'text-indigo-500', bg: 'bg-indigo-50', label: 'Projeto' },
+  project: { icon: FolderKanban, color: 'text-[#4B7B9C]', bg: 'bg-[#EBF3F7]', label: 'Projeto' },
   task: { icon: CheckSquare, color: 'text-sky-500', bg: 'bg-sky-50', label: 'Tarefa' },
   file: { icon: FileText, color: 'text-amber-500', bg: 'bg-amber-50', label: 'Arquivo' },
   client: { icon: Building2, color: 'text-emerald-500', bg: 'bg-emerald-50', label: 'Cliente' },
@@ -150,7 +150,7 @@ export function GlobalSearch() {
                       onClick={() => navigate(r)}
                       onMouseEnter={() => setSelectedIdx(i)}
                       className={`w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors ${
-                        i === selectedIdx ? 'bg-indigo-50' : 'hover:bg-gray-50'
+                        i === selectedIdx ? 'bg-[#EBF3F7]' : 'hover:bg-gray-50'
                       }`}
                     >
                       <div className={`w-7 h-7 rounded-md ${config.bg} flex items-center justify-center flex-shrink-0`}>

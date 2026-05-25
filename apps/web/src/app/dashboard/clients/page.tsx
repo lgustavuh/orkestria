@@ -351,12 +351,12 @@ export default function ClientsPage() {
 
       {/* Contract saved */}
       {savedContractUrl && (
-        <div className="card mb-6 border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-900/10">
+        <div className="card mb-6 border-[#A8CBDA] dark:border-[#1E2F3A] bg-[#EBF3F7] dark:bg-[#1E2F3A]/10">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-indigo-700 dark:text-indigo-300">📄 Contrato salvo com sucesso</span>
+            <span className="text-sm text-[#2A3F4E] dark:text-[#7BABC2]">📄 Contrato salvo com sucesso</span>
             <div className="flex gap-2">
               <button onClick={() => openContract(savedContractUrl)} className="btn-secondary text-xs"><ExternalLink size={12} className="mr-1" /> Abrir contrato</button>
-              <button onClick={() => setSavedContractUrl(null)} className="p-1 rounded hover:bg-indigo-100 dark:hover:bg-indigo-900/20"><X size={14} className="text-indigo-400" /></button>
+              <button onClick={() => setSavedContractUrl(null)} className="p-1 rounded hover:bg-[#D6E7EF] dark:hover:bg-[#1E2F3A]/20"><X size={14} className="text-[#6B9AB8]" /></button>
             </div>
           </div>
         </div>
@@ -364,7 +364,7 @@ export default function ClientsPage() {
 
       {/* Portal access edit */}
       {portalEditId && (
-        <div className="card mb-6 border-indigo-200 dark:border-indigo-800">
+        <div className="card mb-6 border-[#A8CBDA] dark:border-[#1E2F3A]">
           <div className="flex items-center justify-between mb-3">
             <h4 className="font-medium dark:text-white">Alterar acesso do portal</h4>
             <button onClick={() => setPortalEditId(null)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"><X size={14} className="text-gray-400" /></button>
@@ -412,7 +412,7 @@ export default function ClientsPage() {
                   {(['PF', 'PJ'] as const).map(t => (
                     <button key={t} type="button" onClick={() => { setField('documentType', t); setField('document', ''); }}
                       className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        form.documentType === t ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 ring-1 ring-indigo-300 dark:ring-indigo-700'
+                        form.documentType === t ? 'bg-[#D6E7EF] dark:bg-[#1E2F3A]/30 text-[#2A3F4E] dark:text-[#7BABC2] ring-1 ring-[#7BABC2] dark:ring-[#2A3F4E]'
                         : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300'
                       }`}>
                       {t === 'PF' ? <User size={14} /> : <Building2 size={14} />}
@@ -508,7 +508,7 @@ export default function ClientsPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contrato (PDF)</label>
               <div className="flex items-center gap-3">
-                <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 hover:border-indigo-400 cursor-pointer transition-colors">
+                <label className="flex items-center gap-2 px-4 py-2 rounded-lg border border-dashed border-gray-300 dark:border-gray-600 hover:border-[#6B9AB8] cursor-pointer transition-colors">
                   <Upload size={16} className="text-gray-400" />
                   <span className="text-sm text-gray-500 dark:text-gray-400">{contractFile ? contractFile.name : 'Selecionar PDF'}</span>
                   <input type="file" accept=".pdf,application/pdf" className="hidden" onChange={e => setContractFile(e.target.files?.[0] || null)} />
@@ -543,11 +543,11 @@ export default function ClientsPage() {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden ${
-                      c.logoUrl ? '' : c.documentType === 'PF' ? 'bg-violet-100 dark:bg-violet-900/30' : 'bg-indigo-100 dark:bg-indigo-900/30'
+                      c.logoUrl ? '' : c.documentType === 'PF' ? 'bg-[#D6E7EF] dark:bg-[#1E2F3A]/30' : 'bg-[#D6E7EF] dark:bg-[#1E2F3A]/30'
                     }`}>
                       {logoPreviews[c.id] ? <img src={logoPreviews[c.id]} className="w-full h-full object-cover" />
-                        : c.documentType === 'PF' ? <User size={18} className="text-violet-600 dark:text-violet-400" />
-                        : <Building2 size={18} className="text-indigo-600 dark:text-indigo-400" />}
+                        : c.documentType === 'PF' ? <User size={18} className="text-[#3A6280] dark:text-[#6B9AB8]" />
+                        : <Building2 size={18} className="text-[#3A6280] dark:text-[#6B9AB8]" />}
                     </div>
                     <div>
                       <h3 className="font-medium dark:text-white">{c.name}</h3>
@@ -565,10 +565,10 @@ export default function ClientsPage() {
                   {c.phone && <p>{c.phone}</p>}
                   {c.city && <p>{flag} {c.city}{c.state ? `/${c.state}` : ''}{c.country && c.country !== 'Brasil' ? ` — ${c.country}` : ''}</p>}
                   {c.clientUsers?.[0]?.user?.email && (
-                    <p className="text-xs mt-1"><span className="text-gray-400">Portal: </span><span className="text-indigo-600 dark:text-indigo-400 font-mono">{c.clientUsers[0].user.email}</span></p>
+                    <p className="text-xs mt-1"><span className="text-gray-400">Portal: </span><span className="text-[#3A6280] dark:text-[#6B9AB8] font-mono">{c.clientUsers[0].user.email}</span></p>
                   )}
                   {c.contractUrl && (
-                    <button onClick={() => openContract(c.contractUrl)} className="flex items-center gap-1 text-indigo-600 dark:text-indigo-400 text-xs mt-2 hover:underline">
+                    <button onClick={() => openContract(c.contractUrl)} className="flex items-center gap-1 text-[#3A6280] dark:text-[#6B9AB8] text-xs mt-2 hover:underline">
                       <FileText size={12} /> Abrir contrato <ExternalLink size={10} />
                     </button>
                   )}

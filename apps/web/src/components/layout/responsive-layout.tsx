@@ -33,7 +33,7 @@ export function ResponsiveLayout({ children, sidebar }: Props) {
             <button onClick={() => setOpen(!open)} className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800">
               {open ? <X size={20} className="dark:text-gray-300" /> : <Menu size={20} className="dark:text-gray-300" />}
             </button>
-            <span className="font-bold text-indigo-600 dark:text-indigo-400 text-sm">Orkestria</span>
+            <span className="font-bold text-[#3A6280] dark:text-[#6B9AB8] text-sm">Orkestria</span>
           </div>
         )}
         {children}

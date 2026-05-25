@@ -47,12 +47,13 @@ export class ApprovalsService {
     type?: string;
     page?: number;
     limit?: number;
-  }) {
+  }, tenantId?: string | null) {
     const page = query.page || 1;
     const limit = Math.min(query.limit || 20, 100);
     const skip = (page - 1) * limit;
 
     const where: any = {};
+    if (tenantId) where.task = { ...where.task, project: { tenantId } };
 
     // Clientes só veem aprovações do tipo CLIENT
     if (roles.includes('CLIENT') && !roles.includes('ADMIN')) {

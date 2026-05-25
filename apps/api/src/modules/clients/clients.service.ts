@@ -20,24 +20,20 @@ export class ClientsService {
     // 2. Auto-create portal user if email is provided
     if (data.email) {
       try {
-        // Check if user with this email already exists
         const existing = await this.prisma.user.findUnique({ where: { email: data.email } });
 
         if (!existing) {
-          // Password = firstName (no spaces, lowercase) + @123
-          // Ex: "Fernanda Almeida" -> "fernanda@123"
           const firstName = data.name.split(' ')[0];
           const password = firstName.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z]/g, '') + '@123';
           const passwordHash = await bcrypt.hash(password, 12);
 
-          // Find CLIENT role
-          const clientRole = await this.prisma.role.findUnique({ where: { name: 'CLIENT' } });
+          const clientRole = await this.prisma.role.findFirst({ where: { name: 'CLIENT' as any } });
 
-          // Create user
           const user = await this.prisma.user.create({
             data: {
               email: data.email,
               passwordHash,
+              tenantId: (data as any).tenantId || undefined,
               firstName: firstName,
               lastName: data.name.split(' ').slice(1).join(' ') || '',
               phone: data.phone,

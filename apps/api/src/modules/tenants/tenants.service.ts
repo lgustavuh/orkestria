@@ -135,7 +135,7 @@ export class TenantsService {
       this.prisma.tenant.count({ where: { status: 'SUSPENDED' } }),
     ]);
 
-    const totalUsers = await this.prisma.user.count({ where: { tenantId: { not: null } } });
+    const totalUsers = await this.prisma.user.count({ where: { tenantId: { not: null }, roles: { none: { role: { name: 'CLIENT' as any } } } } });
     const totalProjects = await this.prisma.project.count({ where: { tenantId: { not: null } } });
 
     // Revenue estimate
@@ -165,10 +165,15 @@ export class TenantsService {
       where: { id },
       include: {
         users: { select: { id: true, email: true, firstName: true, lastName: true, isActive: true, createdAt: true, roles: { include: { role: { select: { name: true } } } } } },
-        _count: { select: { users: true, projects: true, clients: true } },
+        _count: { select: { projects: true, clients: true } },
       },
     });
     if (!tenant) throw new NotFoundException('Tenant não encontrado');
+
+    // Count staff (exclude CLIENT role)
+    const staffCount = await this.prisma.user.count({
+      where: { tenantId: id, roles: { none: { role: { name: 'CLIENT' as any } } } },
+    });
 
     const projects = await this.prisma.project.findMany({
       where: { tenantId: id },
@@ -177,7 +182,7 @@ export class TenantsService {
       take: 20,
     });
 
-    return { ...tenant, projects };
+    return { ...tenant, _count: { ...tenant._count, users: staffCount }, projects };
   }
 
   async updateTenantData(id: string, data: {
@@ -233,12 +238,19 @@ export class TenantsService {
   }
 
   async findAll() {
-    return this.prisma.tenant.findMany({
+    const tenants = await this.prisma.tenant.findMany({
       orderBy: { createdAt: 'desc' },
       include: {
-        _count: { select: { users: true, projects: true, clients: true } },
+        _count: { select: { projects: true, clients: true } },
       },
     });
+    // Get staff count (excluding CLIENT role) for each tenant
+    const counts = await Promise.all(
+      tenants.map(t => this.prisma.user.count({
+        where: { tenantId: t.id, roles: { none: { role: { name: 'CLIENT' as any } } } },
+      }))
+    );
+    return tenants.map((t, i) => ({ ...t, _count: { ...t._count, users: counts[i] } }));
   }
 
   async findOne(id: string) {

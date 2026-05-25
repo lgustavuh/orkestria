@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { formatDateBR } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
 import { CheckSquare, AlertTriangle } from 'lucide-react';
@@ -30,7 +31,7 @@ export default function TasksPage() {
   const statusColor = (s: string) => ({
     TODO: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
     IN_PROGRESS: 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400',
-    IN_REVIEW: 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400',
+    IN_REVIEW: 'bg-[#D6E7EF] dark:bg-[#1E2F3A]/30 text-[#2A3F4E] dark:text-[#6B9AB8]',
     BLOCKED: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400',
     DONE: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
   }[s] || 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300');
@@ -59,7 +60,7 @@ export default function TasksPage() {
         <div className="space-y-2">
           {pending.map((t: any) => (
             <Link key={t.id} href={`/dashboard/tasks/${t.id}`}
-              className="card flex items-center gap-4 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors p-4">
+              className="card flex items-center gap-4 hover:border-[#A8CBDA] dark:hover:border-[#1E2F3A] transition-colors p-4">
               <div className="flex-1">
                 <p className="font-medium text-sm dark:text-gray-100">{t.title}</p>
                 <p className="text-xs text-gray-400">{t.projectName}</p>
@@ -67,7 +68,7 @@ export default function TasksPage() {
               <span className={`badge ${statusColor(t.status)}`}>{t.status}</span>
               {t.dueDate && (
                 <span className={`text-xs ${new Date(t.dueDate) < new Date() ? 'text-red-500' : 'text-gray-400'}`}>
-                  {new Date(t.dueDate).toLocaleDateString('pt-BR')}
+                  {formatDateBR(t.dueDate)}
                 </span>
               )}
             </Link>

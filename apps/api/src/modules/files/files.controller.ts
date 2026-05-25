@@ -26,8 +26,8 @@ export class FilesController {
 
   @Get()
   @ApiOperation({ summary: 'Listar todos os arquivos acessíveis' })
-  findAll(@CurrentUser() user: any, @Query() query: any) {
-    return this.files.findAll(user.sub, user.roles, query);
+  findAll(@CurrentUser() user: any, @Query() query: any, @CurrentTenant() tenantId: string) {
+    return this.files.findAll(user.sub, user.roles, query, tenantId);
   }
 
   @Post('presigned-url')
@@ -69,8 +69,8 @@ export class FilesController {
 
   @Get('download-url')
   @ApiOperation({ summary: 'Gerar URL de download por s3Key' })
-  downloadByKey(@Query('key') key: string, @CurrentUser() user: any) {
-    return this.files.getDownloadUrlByKey(key, user.sub, user.roles);
+  downloadByKey(@Query('key') key: string, @CurrentUser() user: any, @CurrentTenant() tenantId: string) {
+    return this.files.getDownloadUrlByKey(key, user.sub, user.roles, tenantId);
   }
 
   @Get('project/:projectId')

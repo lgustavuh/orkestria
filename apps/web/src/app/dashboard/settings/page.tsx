@@ -85,7 +85,7 @@ export default function SettingsPage() {
           <h3 className="font-medium mb-4 dark:text-white">Perfil</h3>
           <div className="flex items-center gap-4 mb-4">
             <div className="relative group">
-              <div className="w-16 h-16 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xl font-semibold text-indigo-700 dark:text-indigo-300 overflow-hidden">
+              <div className="w-16 h-16 rounded-full bg-[#D6E7EF] dark:bg-[#1E2F3A] flex items-center justify-center text-xl font-semibold text-[#2A3F4E] dark:text-[#7BABC2] overflow-hidden">
                 {user?.avatarUrl ? <img src={user.avatarUrl} className="w-full h-full object-cover" /> : <span>{user?.firstName?.[0]}{user?.lastName?.[0]}</span>}
               </div>
               <button onClick={() => avatarRef.current?.click()}
@@ -98,7 +98,7 @@ export default function SettingsPage() {
             <div>
               <p className="font-medium dark:text-white">{user?.firstName} {user?.lastName}</p>
               <p className="text-sm text-gray-500 dark:text-gray-400">{user?.email}</p>
-              <span className="badge bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 mt-1">{user?.roles?.[0]}</span>
+              <span className="badge bg-[#D6E7EF] dark:bg-[#1E2F3A]/30 text-[#2A3F4E] dark:text-[#6B9AB8] mt-1">{user?.roles?.[0]}</span>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 mb-3">

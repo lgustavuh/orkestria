@@ -41,9 +41,9 @@ const ROLES = [
 
 const roleBadge = (r: string) => ({
   ADMIN: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
-  STRATEGIST: 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400',
+  STRATEGIST: 'bg-[#D6E7EF] dark:bg-[#1E2F3A]/30 text-[#2A3F4E] dark:text-[#6B9AB8]',
   CLIENT: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
-}[r] || 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400');
+}[r] || 'bg-purple-100 dark:bg-purple-900/30 text-[#2A3F4E] dark:text-purple-400');
 
 const roleLabel = (r: string) => ROLES.find(x => x.name === r)?.label || r;
 
@@ -218,7 +218,7 @@ export default function AdminPage() {
                 <tr key={u.id} className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800/30">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-medium text-indigo-700 dark:text-indigo-300">
+                      <div className="w-8 h-8 rounded-full bg-[#D6E7EF] dark:bg-[#1E2F3A] flex items-center justify-center text-xs font-medium text-[#2A3F4E] dark:text-[#7BABC2]">
                         {u.firstName?.[0]}{u.lastName?.[0]}
                       </div>
                       <span className="font-medium dark:text-gray-100">{u.firstName} {u.lastName}</span>
@@ -240,7 +240,7 @@ export default function AdminPage() {
                           load();
                         } catch (err: any) { alert(err.message); }
                       }}
-                      className="text-xs rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 dark:text-gray-200 focus:ring-1 focus:ring-indigo-500"
+                      className="text-xs rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 px-2 py-1 dark:text-gray-200 focus:ring-1 focus:ring-[#4B7B9C]"
                     >
                       {ROLES.map(r => <option key={r.id} value={r.id}>{r.label}</option>)}
                     </select>

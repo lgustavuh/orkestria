@@ -56,7 +56,7 @@ export default function ApprovalsPage() {
                     </div>
                     <p className="font-medium dark:text-white">{a.title}</p>
                     {a.description && <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{a.description}</p>}
-                    {a.feedback && <p className="text-sm text-indigo-600 dark:text-indigo-400 mt-2 italic">&ldquo;{a.feedback}&rdquo;</p>}
+                    {a.feedback && <p className="text-sm text-[#3A6280] dark:text-[#6B9AB8] mt-2 italic">&ldquo;{a.feedback}&rdquo;</p>}
                   </div>
 
                   {/* Action buttons only for admin/strategist on PENDING approvals */}

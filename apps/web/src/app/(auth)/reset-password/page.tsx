@@ -52,7 +52,7 @@ export default function ResetPasswordPage() {
       <div className="min-h-screen flex items-center justify-center px-4">
         <div className="card max-w-md w-full text-center py-8">
           <p className="text-gray-500 mb-4">Token de recuperação inválido ou ausente.</p>
-          <Link href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-500">
+          <Link href="/forgot-password" className="text-sm text-[#3A6280] hover:text-[#4B7B9C]">
             Solicitar nova recuperação
           </Link>
         </div>
@@ -64,7 +64,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">Orkestria</h1>
+          <h1 className="text-3xl font-bold text-[#3A6280] dark:text-[#6B9AB8]">Orkestria</h1>
           <p className="mt-2 text-gray-500 dark:text-gray-400">Nova senha</p>
         </div>
 

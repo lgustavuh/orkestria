@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { api } from '@/lib/api';
+import { formatDateBR } from '@/lib/date';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowLeft, Plus, X, CheckSquare, UserPlus, UserMinus } from 'lucide-react';
 import { KanbanBoard } from '@/components/ui/kanban-board';
@@ -14,7 +15,7 @@ type Tab = 'overview' | 'tasks' | 'files' | 'approvals' | 'feedback';
 const STATUS_BADGE: Record<string, string> = {
   TODO: 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300',
   IN_PROGRESS: 'bg-sky-100 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400',
-  IN_REVIEW: 'bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400',
+  IN_REVIEW: 'bg-[#D6E7EF] dark:bg-[#1E2F3A]/30 text-[#2A3F4E] dark:text-[#6B9AB8]',
   BLOCKED: 'bg-rose-100 dark:bg-rose-900/30 text-rose-700 dark:text-rose-400',
   DONE: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400',
 };
@@ -76,7 +77,7 @@ export default function ProjectDetailPage() {
         description: taskForm.description || undefined,
         priority: taskForm.priority,
       };
-      if (taskForm.dueDate) data.dueDate = taskForm.dueDate;
+      if (taskForm.dueDate) data.dueDate = taskForm.dueDate + 'T12:00:00';
       
       // Admin/Strategist can assign to anyone, others self-only
       if (canManage && taskForm.assigneeId) {
@@ -122,7 +123,7 @@ export default function ProjectDetailPage() {
           <span className="text-sm font-semibold dark:text-white">{project.progress}%</span>
         </div>
         <div className="w-full h-2.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
-          <div className="h-full bg-indigo-500 rounded-full transition-all" style={{ width: `${project.progress}%` }} />
+          <div className="h-full bg-[#4B7B9C] rounded-full transition-all" style={{ width: `${project.progress}%` }} />
         </div>
         {stages.length > 0 && (
           <div className="flex gap-1 mt-3">
@@ -138,7 +139,7 @@ export default function ProjectDetailPage() {
                 }}
                 disabled={!canManage || s.isActive}
                 className={`flex-1 text-center text-[10px] py-1.5 rounded transition-colors ${
-                s.isActive ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400 font-semibold ring-1 ring-indigo-300 dark:ring-indigo-700'
+                s.isActive ? 'bg-[#D6E7EF] dark:bg-[#1E2F3A]/30 text-[#2A3F4E] dark:text-[#6B9AB8] font-semibold ring-1 ring-[#7BABC2] dark:ring-[#2A3F4E]'
                 : s.completedAt ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400'
                 : canManage ? 'bg-gray-50 dark:bg-gray-800 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer'
                 : 'bg-gray-50 dark:bg-gray-800 text-gray-400'
@@ -157,7 +158,7 @@ export default function ProjectDetailPage() {
       <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700 mb-4">
         {(['overview', 'tasks', 'files', 'approvals', 'feedback'] as Tab[]).map(t => (
           <button key={t} onClick={() => setTab(t)} className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-            tab === t ? 'border-indigo-500 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+            tab === t ? 'border-[#4B7B9C] text-[#3A6280] dark:text-[#6B9AB8]' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
           }`}>
             {{ overview: 'Visão geral', tasks: `Tarefas (${taskList.length})`, files: 'Arquivos', approvals: 'Aprovações', feedback: 'Feedback' }[t]}
           </button>
@@ -175,15 +176,15 @@ export default function ProjectDetailPage() {
             <div className="card text-sm space-y-2">
               {project.channels?.length > 0 && <div><span className="text-gray-500 dark:text-gray-400">Canais: </span><span className="dark:text-gray-200">{project.channels.join(', ')}</span></div>}
               {project.budget && <div><span className="text-gray-500 dark:text-gray-400">Orçamento: </span><span className="font-semibold dark:text-white">R$ {Number(project.budget).toLocaleString('pt-BR')}</span></div>}
-              {project.startDate && <div><span className="text-gray-500 dark:text-gray-400">Início: </span><span className="dark:text-gray-200">{new Date(project.startDate).toLocaleDateString('pt-BR')}</span></div>}
-              {project.endDate && <div><span className="text-gray-500 dark:text-gray-400">Prazo: </span><span className="dark:text-gray-200">{new Date(project.endDate).toLocaleDateString('pt-BR')}</span></div>}
+              {project.startDate && <div><span className="text-gray-500 dark:text-gray-400">Início: </span><span className="dark:text-gray-200">{formatDateBR(project.startDate)}</span></div>}
+              {project.endDate && <div><span className="text-gray-500 dark:text-gray-400">Prazo: </span><span className="dark:text-gray-200">{formatDateBR(project.endDate)}</span></div>}
             </div>
             <div className="card">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="text-sm font-medium text-gray-500 dark:text-gray-400">Equipe ({members.length})</h4>
                 {canManage && (
                   <button onClick={() => setShowAddMember(!showAddMember)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
-                    <UserPlus size={14} className="text-indigo-500" />
+                    <UserPlus size={14} className="text-[#4B7B9C]" />
                   </button>
                 )}
               </div>
@@ -194,7 +195,7 @@ export default function ProjectDetailPage() {
                     {allUsers.filter((u: any) => !members.some((m: any) => m.user?.id === u.id) && !u.roles?.includes('CLIENT')).map((u: any) => (
                       <button key={u.id} onClick={async () => {
                         try { await api.fetch(`/projects/${id}/members`, { method: 'POST', body: JSON.stringify({ userId: u.id }) }); api.getProject(id).then(setProject); setShowAddMember(false); } catch {}
-                      }} className="w-full flex items-center gap-2 px-2 py-1 rounded hover:bg-indigo-50 dark:hover:bg-indigo-900/20 text-left">
+                      }} className="w-full flex items-center gap-2 px-2 py-1 rounded hover:bg-[#EBF3F7] dark:hover:bg-[#1E2F3A]/20 text-left">
                         <Avatar firstName={u.firstName} lastName={u.lastName} size="xs" />
                         <span className="text-xs dark:text-gray-300">{u.firstName} {u.lastName}</span>
                       </button>
@@ -243,7 +244,7 @@ export default function ProjectDetailPage() {
 
           {/* Task creation form */}
           {showTaskForm && (
-            <div className="card mb-4 border-indigo-200 dark:border-indigo-800">
+            <div className="card mb-4 border-[#A8CBDA] dark:border-[#1E2F3A]">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-medium dark:text-white">Nova Tarefa</h4>
                 <button onClick={() => setShowTaskForm(false)} className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"><X size={14} className="text-gray-400" /></button>
@@ -305,7 +306,7 @@ export default function ProjectDetailPage() {
             <div className="space-y-2">
               {taskList.map((t: any) => (
                 <Link key={t.id} href={`/dashboard/tasks/${t.id}`}
-                  className="card flex items-center gap-3 p-3 hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
+                  className="card flex items-center gap-3 p-3 hover:border-[#A8CBDA] dark:hover:border-[#1E2F3A] transition-colors">
                   <div className={`w-2 h-2 rounded-full ${
                     t.status === 'DONE' ? 'bg-emerald-500' : t.status === 'IN_PROGRESS' ? 'bg-sky-500' : t.status === 'BLOCKED' ? 'bg-rose-500' : 'bg-gray-300 dark:bg-gray-600'
                   }`} />
@@ -367,7 +368,7 @@ export default function ProjectDetailPage() {
                       : a.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                       : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
                     }`}>{{ PENDING: 'Pendente', APPROVED: 'Aprovado', REJECTED: 'Reprovado', CHANGES_REQUESTED: 'Ajustes' }[a.status] || a.status}</span>
-                    <span className="text-xs text-gray-400">{new Date(a.createdAt).toLocaleDateString('pt-BR')}</span>
+                    <span className="text-xs text-gray-400">{formatDateBR(a.createdAt)}</span>
                   </div>
                   <p className="font-medium dark:text-white">{a.task?.title || a.title}</p>
                   {a.requestedBy && (
@@ -375,7 +376,7 @@ export default function ProjectDetailPage() {
                       Enviado por <span className="font-medium text-gray-700 dark:text-gray-300">{a.requestedBy.firstName} {a.requestedBy.lastName}</span>
                     </p>
                   )}
-                  {a.feedback && <p className="text-sm text-indigo-600 dark:text-indigo-400 mt-1 italic">"{a.feedback}"</p>}
+                  {a.feedback && <p className="text-sm text-[#3A6280] dark:text-[#6B9AB8] mt-1 italic">"{a.feedback}"</p>}
                 </div>
               ))}
             </div>
@@ -393,8 +394,8 @@ export default function ProjectDetailPage() {
               {projectFeedback.map((n: any) => (
                 <div key={n.id} className="card">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="badge bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-400">Feedback do cliente</span>
-                    <span className="text-xs text-gray-400">{new Date(n.createdAt).toLocaleDateString('pt-BR')}</span>
+                    <span className="badge bg-[#D6E7EF] dark:bg-[#1E2F3A]/30 text-[#2A3F4E] dark:text-[#6B9AB8]">Feedback do cliente</span>
+                    <span className="text-xs text-gray-400">{formatDateBR(n.createdAt)}</span>
                   </div>
                   <p className="text-sm dark:text-gray-200">{n.data?.fullMessage || n.message}</p>
                 </div>

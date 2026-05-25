@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/api';
+import { formatDateBR } from '@/lib/date';
 import { ThumbsUp, Check, X, MessageSquare, FileText, Download, Clock } from 'lucide-react';
 
 export default function PortalApprovalsPage() {
@@ -63,12 +64,12 @@ export default function PortalApprovalsPage() {
                 {/* Header */}
                 <div className="flex items-center gap-2 mb-2">
                   <span className={`badge ${cfg.badge}`}>{cfg.label}</span>
-                  {a.createdAt && <span className="text-xs text-gray-400 flex items-center gap-1"><Clock size={10} />{new Date(a.createdAt).toLocaleDateString('pt-BR')}</span>}
+                  {a.createdAt && <span className="text-xs text-gray-400 flex items-center gap-1"><Clock size={10} />{formatDateBR(a.createdAt)}</span>}
                 </div>
 
                 {/* Project name */}
                 {a.task?.project?.name && (
-                  <p className="text-xs text-indigo-600 dark:text-indigo-400 font-medium mb-1">Projeto: {a.task.project.name}</p>
+                  <p className="text-xs text-[#3A6280] dark:text-[#6B9AB8] font-medium mb-1">Projeto: {a.task.project.name}</p>
                 )}
 
                 {/* Task title as main heading */}
@@ -97,7 +98,7 @@ export default function PortalApprovalsPage() {
                       {taskFiles.map((f: any) => (
                         <button key={f.id} onClick={async () => {
                           try { const r = await api.fetch<any>(`/portal/files/${f.id}/download`); window.open(r.downloadUrl, '_blank'); } catch {}
-                        }} className="rounded-lg border border-gray-200 dark:border-gray-700 hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all overflow-hidden text-left group">
+                        }} className="rounded-lg border border-gray-200 dark:border-gray-700 hover:border-[#7BABC2] dark:hover:border-[#2A3F4E] hover:shadow-md transition-all overflow-hidden text-left group">
                           <div className="h-24 bg-gray-50 dark:bg-gray-800 flex items-center justify-center overflow-hidden relative">
                             {isImg(f.mimeType) && previews[f.id] ? (
                               <img src={previews[f.id]} className="w-full h-full object-cover" />
@@ -119,9 +120,9 @@ export default function PortalApprovalsPage() {
 
                 {/* Feedback if already resolved */}
                 {a.feedback && (
-                  <div className="bg-indigo-50 dark:bg-indigo-900/10 rounded-lg p-3 mb-3">
-                    <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-1">Seu feedback:</p>
-                    <p className="text-sm text-indigo-700 dark:text-indigo-300">{a.feedback}</p>
+                  <div className="bg-[#EBF3F7] dark:bg-[#1E2F3A]/10 rounded-lg p-3 mb-3">
+                    <p className="text-xs text-[#3A6280] dark:text-[#6B9AB8] mb-1">Seu feedback:</p>
+                    <p className="text-sm text-[#2A3F4E] dark:text-[#7BABC2]">{a.feedback}</p>
                   </div>
                 )}
 

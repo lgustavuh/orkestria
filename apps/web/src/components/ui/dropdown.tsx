@@ -37,7 +37,7 @@ export function Dropdown({ options, value, onChange, placeholder = 'Selecionar..
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-300 hover:border-gray-400 bg-white text-sm text-left transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+        className="w-full flex items-center gap-2 px-3 py-2.5 rounded-lg border border-gray-300 hover:border-gray-400 bg-white text-sm text-left transition-colors focus:outline-none focus:ring-2 focus:ring-[#4B7B9C] focus:border-[#4B7B9C]"
       >
         {selected?.icon}
         <span className={selected ? 'text-gray-900' : 'text-gray-400'}>
@@ -53,7 +53,7 @@ export function Dropdown({ options, value, onChange, placeholder = 'Selecionar..
               key={opt.value}
               onClick={() => { onChange(opt.value); setOpen(false); }}
               className={`w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 text-left ${
-                opt.value === value ? 'bg-indigo-50 text-indigo-700' : 'text-gray-700'
+                opt.value === value ? 'bg-[#EBF3F7] text-[#2A3F4E]' : 'text-gray-700'
               }`}
             >
               {opt.icon}

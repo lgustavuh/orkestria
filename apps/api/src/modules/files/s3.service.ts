@@ -6,6 +6,7 @@ import {
   GetObjectCommand,
   DeleteObjectCommand,
   CreateBucketCommand,
+  ListObjectsV2Command,
   HeadBucketCommand,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
@@ -65,15 +66,17 @@ export class S3Service {
       .toLowerCase() || 'uploads';
     const key = `${safeName}/${date}/${uuid()}.${ext}`;
 
-    // Don't include ContentType in presigned URL to avoid signature mismatch
+    // Use tenant-specific bucket if available
+    const targetBucket = params.tenantSlug ? `${params.tenantSlug}-files` : this.bucket;
+
     const command = new PutObjectCommand({
-      Bucket: this.bucket,
+      Bucket: targetBucket,
       Key: key,
     });
 
     const url = await getSignedUrl(this.client, command, { expiresIn: 3600 });
 
-    return { url, key, bucket: this.bucket };
+    return { url, key, bucket: targetBucket };
   }
 
   async getPresignedDownloadUrl(key: string, originalName?: string, bucket?: string) {
@@ -88,12 +91,40 @@ export class S3Service {
     return getSignedUrl(this.client, command, { expiresIn: 900 });
   }
 
-  async deleteObject(key: string) {
+  async deleteObject(key: string, bucket?: string) {
     await this.client.send(
-      new DeleteObjectCommand({ Bucket: this.bucket, Key: key }),
+      new DeleteObjectCommand({ Bucket: bucket || this.bucket, Key: key }),
     );
   }
 
+
+  async listObjects(bucket?: string, prefix?: string): Promise<{ key: string; size: number; lastModified: string }[]> {
+    const results: { key: string; size: number; lastModified: string }[] = [];
+    let continuationToken: string | undefined;
+    
+    do {
+      const response = await this.client.send(new ListObjectsV2Command({
+        Bucket: bucket || this.bucket,
+        Prefix: prefix,
+        ContinuationToken: continuationToken,
+        MaxKeys: 1000,
+      }));
+      
+      for (const obj of response.Contents || []) {
+        if (obj.Key) {
+          results.push({
+            key: obj.Key,
+            size: obj.Size || 0,
+            lastModified: obj.LastModified?.toISOString() || '',
+          });
+        }
+      }
+      
+      continuationToken = response.NextContinuationToken;
+    } while (continuationToken);
+    
+    return results;
+  }
 
   async createBucket(bucketName: string) {
     try {
@@ -105,10 +136,10 @@ export class S3Service {
     }
   }
 
-  async uploadBuffer(key: string, buffer: Buffer, contentType: string) {
+  async uploadBuffer(key: string, buffer: Buffer, contentType: string, bucket?: string) {
     await this.client.send(
       new PutObjectCommand({
-        Bucket: this.bucket,
+        Bucket: bucket || this.bucket,
         Key: key,
         Body: buffer,
         ContentType: contentType,
@@ -117,9 +148,9 @@ export class S3Service {
     return { key, bucket: this.bucket };
   }
 
-  async downloadObject(key: string): Promise<Buffer> {
+  async downloadObject(key: string, bucket?: string): Promise<Buffer> {
     const response = await this.client.send(
-      new GetObjectCommand({ Bucket: this.bucket, Key: key }),
+      new GetObjectCommand({ Bucket: bucket || this.bucket, Key: key }),
     );
     const stream = response.Body as any;
     const chunks: Buffer[] = [];

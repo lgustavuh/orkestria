@@ -79,11 +79,11 @@ export default function CalendarPage() {
             return (
               <div key={i} className={`min-h-[80px] md:min-h-[100px] p-1 border-b border-r border-gray-100 dark:border-gray-800 ${
                 !d.isCurrentMonth ? 'bg-gray-50 dark:bg-gray-900/50' : ''
-              } ${isToday(d.date) ? 'bg-indigo-50/50 dark:bg-indigo-900/10' : ''}`}>
+              } ${isToday(d.date) ? 'bg-[#EBF3F7]/50 dark:bg-[#1E2F3A]/10' : ''}`}>
                 <div className={`text-xs font-medium mb-1 px-1 ${
-                  isToday(d.date) ? 'text-indigo-600 dark:text-indigo-400' : !d.isCurrentMonth ? 'text-gray-300 dark:text-gray-600' : 'text-gray-600 dark:text-gray-300'
+                  isToday(d.date) ? 'text-[#3A6280] dark:text-[#6B9AB8]' : !d.isCurrentMonth ? 'text-gray-300 dark:text-gray-600' : 'text-gray-600 dark:text-gray-300'
                 }`}>
-                  {isToday(d.date) ? <span className="bg-indigo-600 text-white rounded-full w-5 h-5 inline-flex items-center justify-center">{d.day}</span> : d.day}
+                  {isToday(d.date) ? <span className="bg-[#4B7B9C] text-white rounded-full w-5 h-5 inline-flex items-center justify-center">{d.day}</span> : d.day}
                 </div>
                 <div className="space-y-0.5">
                   {dayTasks.slice(0, 3).map(t => (
@@ -91,7 +91,7 @@ export default function CalendarPage() {
                       className={`block text-[10px] leading-tight px-1 py-0.5 rounded ${
                         t.status === 'DONE' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 line-through'
                         : isPast(d.date) ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                        : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400'
+                        : 'bg-[#D6E7EF] dark:bg-[#1E2F3A]/30 text-[#2A3F4E] dark:text-[#6B9AB8]'
                       }`}>
                       {t.clientName && <span className="block text-[8px] font-bold opacity-70 truncate">{t.clientName}</span>}
                       <span className="truncate block">{t.title}</span>

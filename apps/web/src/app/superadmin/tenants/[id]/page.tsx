@@ -86,7 +86,7 @@ export default function TenantDetailPage() {
     try { await api.fetch(`/tenants/${id}`, { method: 'DELETE' }); show('Agência cancelada'); router.push('/superadmin/tenants'); } catch (err: any) { show(err.message, 'error'); }
   };
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const formatDate = (d: string) => new Date(d).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'America/Sao_Paulo' });
 
   if (loading) return <div className="flex items-center justify-center py-20"><div className="w-6 h-6 border-2 rounded-full animate-spin" style={{ borderColor: 'var(--brand-light)', borderTopColor: 'var(--brand)' }} /></div>;
   if (!tenant) return <p style={{ color: 'var(--fg-hint)' }}>Não encontrado</p>;

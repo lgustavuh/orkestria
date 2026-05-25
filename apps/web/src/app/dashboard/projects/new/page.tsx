@@ -59,8 +59,8 @@ export default function NewProjectPage() {
       };
       if (form.clientId) data.clientId = form.clientId;
       if (form.budget) data.budget = parseFloat(form.budget);
-      if (form.startDate) data.startDate = form.startDate;
-      if (form.endDate) data.endDate = form.endDate;
+      if (form.startDate) data.startDate = form.startDate + 'T12:00:00';
+      if (form.endDate) data.endDate = form.endDate + 'T12:00:00';
 
       const project = await api.createProject(data);
       // Apply template if selected
@@ -147,7 +147,7 @@ export default function NewProjectPage() {
               <button key={ch} type="button" onClick={() => toggleChannel(ch)}
                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                   form.channels.includes(ch)
-                    ? 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 ring-1 ring-indigo-300 dark:ring-indigo-700'
+                    ? 'bg-[#D6E7EF] dark:bg-[#1E2F3A]/30 text-[#2A3F4E] dark:text-[#7BABC2] ring-1 ring-[#7BABC2] dark:ring-[#2A3F4E]'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}>
                 {ch}
@@ -166,12 +166,12 @@ export default function NewProjectPage() {
             ) : teamUsers.filter(u => !u.roles?.includes('CLIENT')).map((u: any) => (
               <label key={u.id} className={`flex items-center gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
                 selectedMembers.includes(u.id)
-                  ? 'bg-indigo-50 dark:bg-indigo-900/20 ring-1 ring-indigo-200 dark:ring-indigo-800'
+                  ? 'bg-[#EBF3F7] dark:bg-[#1E2F3A]/20 ring-1 ring-[#A8CBDA] dark:ring-[#1E2F3A]'
                   : 'hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}>
                 <input type="checkbox" checked={selectedMembers.includes(u.id)} onChange={() => toggleMember(u.id)}
-                  className="rounded border-gray-300 text-indigo-600" />
-                <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-xs font-medium text-indigo-700 dark:text-indigo-300">
+                  className="rounded border-gray-300 text-[#3A6280]" />
+                <div className="w-8 h-8 rounded-full bg-[#D6E7EF] dark:bg-[#1E2F3A] flex items-center justify-center text-xs font-medium text-[#2A3F4E] dark:text-[#7BABC2]">
                   {u.firstName?.[0]}{u.lastName?.[0]}
                 </div>
                 <div>
@@ -182,7 +182,7 @@ export default function NewProjectPage() {
             ))}
           </div>
           {selectedMembers.length > 0 && (
-            <p className="text-xs text-indigo-600 dark:text-indigo-400">{selectedMembers.length} membro(s) selecionado(s)</p>
+            <p className="text-xs text-[#3A6280] dark:text-[#6B9AB8]">{selectedMembers.length} membro(s) selecionado(s)</p>
           )}
         </div>
 

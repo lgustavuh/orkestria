@@ -31,8 +31,8 @@ export class ClientsController {
 
   @Post()
   @ApiOperation({ summary: 'Criar cliente' })
-  create(@Body() dto: any) {
-    return this.clients.create(dto);
+  create(@Body() dto: any, @CurrentTenant() tenantId: string) {
+    return this.clients.create(dto, tenantId);
   }
 
   @Patch(':id')
