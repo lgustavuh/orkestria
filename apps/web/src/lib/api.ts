@@ -32,7 +32,7 @@ class ApiClient {
 
   getAccessToken() { return this.accessToken; }
 
-  private async fetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
+  async fetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
     this.loadTokens();
 
     const headers: Record<string, string> = {

@@ -24,7 +24,7 @@ export default function LoginPage() {
       if (isClient()) { router.push('/portal'); }
       else {
         try {
-          const me = await api.fetch<any>('/users/me');
+          const me = await api.getMe();
           if (me.roles?.includes('SUPER_ADMIN')) router.push('/superadmin');
           else router.push('/dashboard');
         } catch { router.push('/dashboard'); }
