@@ -367,7 +367,7 @@ export default function ProjectDetailPage() {
                       : a.status === 'APPROVED' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400'
                       : a.status === 'REJECTED' ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
                       : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                    }`}>{{ PENDING: 'Pendente', APPROVED: 'Aprovado', REJECTED: 'Reprovado', CHANGES_REQUESTED: 'Ajustes' }[a.status] || a.status}</span>
+                    }`}>{{ PENDING: 'Pendente', APPROVED: 'Aprovado', REJECTED: 'Reprovado', CHANGES_REQUESTED: 'Ajustes' }[(a.status as string)] || a.status}</span>
                     <span className="text-xs text-gray-400">{formatDateBR(a.createdAt)}</span>
                   </div>
                   <p className="font-medium dark:text-white">{a.task?.title || a.title}</p>
