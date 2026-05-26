@@ -15,7 +15,7 @@ export default function SuperAdminSettingsPage() {
   const [form, setForm] = useState({
     firstName: user?.firstName || '',
     lastName: user?.lastName || '',
-    phone: user?.phone || '',
+    phone: (user as any)?.phone || '',
   });
   const [pwForm, setPwForm] = useState({ password: '', confirm: '' });
 
