@@ -80,11 +80,11 @@ export function KanbanBoard({ tasks, onStatusChange }: Props) {
                     draggable onDragStart={e => onDragStart(e, task.id)} onDragEnd={onDragEnd}
                     className="block p-3 transition-all hover:shadow-md"
                     style={{
-                      background: 'var(--bg-card)', borderRadius: 'var(--radius)',
+                      background: 'var(--bg-card)',
+                      borderRadius: col.key === 'IN_REVIEW' ? '0 12px 12px 0' : 'var(--radius)',
                       boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                       opacity: isDone ? 0.55 : 1,
                       borderLeft: col.key === 'IN_REVIEW' ? '3px solid #a78bfa' : 'none',
-                      borderRadius: col.key === 'IN_REVIEW' ? '0 12px 12px 0' : 'var(--radius)',
                     }}>
                     <p className="text-[12px] font-medium mb-2" style={{ color: isDone ? 'var(--fg-muted)' : 'var(--fg)', textDecoration: isDone ? 'line-through' : 'none' }}>{task.title}</p>
                     {col.key === 'IN_REVIEW' && <p className="text-[9px] mb-2" style={{ color: '#4B7B9C' }}>aguardando cliente</p>}
