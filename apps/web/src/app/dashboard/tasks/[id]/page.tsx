@@ -328,7 +328,7 @@ export default function TaskDetailPage() {
             </div>
             <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
               <Flag size={14} />
-              <span className={`font-medium ${{ LOW: 'text-gray-400', MEDIUM: 'text-sky-500', HIGH: 'text-amber-500', URGENT: 'text-rose-500' }[task.priority] || ''}`}>{task.priority}</span>
+              <span className={`font-medium ${{ LOW: 'text-gray-400', MEDIUM: 'text-sky-500', HIGH: 'text-amber-500', URGENT: 'text-rose-500' }[(task.priority as string)] || ''}`}>{task.priority}</span>
             </div>
             {task.dueDate && (
               <div className={`flex items-center gap-2 ${new Date(task.dueDate) < new Date() && task.status !== 'DONE' ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}>
