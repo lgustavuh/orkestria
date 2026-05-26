@@ -115,12 +115,6 @@ class ApiClient {
   }
   markNotificationRead(id: string) { return this.fetch<any>(`/notifications/${id}/read`, { method: 'PATCH' }); }
 
-  // Approvals
-  getApprovals(params?: Record<string, any>) {
-    const qs = params ? '?' + new URLSearchParams(params).toString() : '';
-    return this.fetch<any>(`/approvals${qs}`);
-  }
-
   // Portal
   portalGetProjects(params?: Record<string, any>) {
     const qs = params ? '?' + new URLSearchParams(params).toString() : '';
