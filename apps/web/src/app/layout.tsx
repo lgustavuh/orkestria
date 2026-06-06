@@ -1,4 +1,5 @@
 import './globals.css';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export const metadata = {
   icons: {
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased">
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
