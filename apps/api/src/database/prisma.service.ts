@@ -2,6 +2,10 @@ import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/commo
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
+import dns from 'dns';
+
+// Force IPv4 DNS resolution (Railway doesn't support IPv6)
+dns.setDefaultResultOrder('ipv4first');
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -11,22 +15,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   constructor() {
     const connStr = process.env.DATABASE_URL as string;
 
-    let poolConfig: any;
-    try {
-      const url = new URL(connStr);
-      poolConfig = {
-        user: decodeURIComponent(url.username),
-        password: decodeURIComponent(url.password),
-        host: url.hostname,
-        port: parseInt(url.port) || 5432,
-        database: url.pathname.replace('/', '') || 'postgres',
-        ssl: { rejectUnauthorized: false },
-      };
-    } catch {
-      poolConfig = { connectionString: connStr, ssl: { rejectUnauthorized: false } };
-    }
+    const pool = new Pool({
+      connectionString: connStr,
+      ssl: { rejectUnauthorized: false },
+    });
 
-    const pool = new Pool(poolConfig);
     const adapter = new PrismaPg(pool);
     super({ adapter } as any);
     this.pgPool = pool;
