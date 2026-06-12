@@ -82,7 +82,7 @@ export class FilesService {
     const visibility = body.visibility || 'INTERNAL';
 
     // Determine bucket
-    let bucket = this.bucket;
+    let bucket: string | undefined = undefined;
     if (tenantId) {
       const tenant = await this.prisma.tenant.findUnique({ where: { id: tenantId }, select: { slug: true } });
       if (tenant) bucket = tenant.slug + '-files';
