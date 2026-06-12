@@ -1,19 +1,17 @@
 import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
-import pg from 'pg';
+import { Pool } from 'pg';
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
-  private pgPool: pg.Pool;
+  private pgPool: Pool;
 
   constructor() {
     const connStr = process.env.DATABASE_URL as string;
 
-    // Parse the URL to extract components and force IPv4
-    let poolConfig: pg.PoolConfig;
-
+    let poolConfig: any;
     try {
       const url = new URL(connStr);
       poolConfig = {
@@ -23,14 +21,12 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         port: parseInt(url.port) || 5432,
         database: url.pathname.replace('/', '') || 'postgres',
         ssl: { rejectUnauthorized: false },
-        // Force IPv4 to avoid ENETUNREACH on IPv6
-        connectionTimeoutMillis: 10000,
       };
     } catch {
       poolConfig = { connectionString: connStr, ssl: { rejectUnauthorized: false } };
     }
 
-    const pool = new pg.Pool(poolConfig);
+    const pool = new Pool(poolConfig);
     const adapter = new PrismaPg(pool);
     super({ adapter } as any);
     this.pgPool = pool;
