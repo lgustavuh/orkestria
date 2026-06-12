@@ -58,17 +58,15 @@ export function FileUpload({ projectId, taskId, onUploadComplete, accept, maxSiz
         reader.onerror = rej;
         reader.readAsDataURL(file);
       });
-      setProgress(40);
-      await api.fetch('/files/upload-direct', {
+      updateProgress(40);
+      const registered = await api.fetch('/files/upload-direct', {
         method: 'POST',
         body: JSON.stringify({
           fileData,
           fileName: file.name,
           mimeType: file.type || 'application/octet-stream',
-          projectId, taskId, visibility,
+          projectId, taskId,
         }),
-      });
-      // File registered by the API directly
       });
 
       updateProgress(100, 'done');
