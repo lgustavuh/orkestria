@@ -20,16 +20,16 @@ async function bootstrap() {
   });
 
   // Security
-  // Default body limit: 1MB (safe for most requests)
-  app.use(require('express').json({ limit: '1mb' }));
-  app.use(require('express').urlencoded({ extended: true, limit: '1mb' }));
-
-  // Avatar routes get higher limit (10MB for base64 images)
+  // Route-specific body limits (must come BEFORE global parser)
   const express = require('express');
   app.use('/api/files/upload-direct', express.json({ limit: '50mb' }));
   app.use('/api/users/me', express.json({ limit: '10mb' }));
   app.use('/api/clients', express.json({ limit: '10mb' }));
   app.use('/api/portal/profile', express.json({ limit: '10mb' }));
+
+  // Default body limit: 1MB (safe for most requests)
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
   if (cookieParser) app.use(cookieParser());
   app.use(helmet({
