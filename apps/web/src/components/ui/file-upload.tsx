@@ -51,24 +51,22 @@ export function FileUpload({ projectId, taskId, onUploadComplete, accept, maxSiz
     };
 
     try {
-      // Direct upload via API
-      const formData = new FormData();
-      formData.append('file', file);
-      if (projectId) formData.append('projectId', projectId);
-      if (taskId) formData.append('taskId', taskId);
-      if (visibility) formData.append('visibility', visibility);
-      
-      const token = api.getAccessToken();
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
-      
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 90)); });
-        xhr.addEventListener('load', () => xhr.status < 300 ? resolve() : reject(new Error(xhr.responseText || 'Upload failed')));
-        xhr.addEventListener('error', () => reject(new Error('Network error')));
-        xhr.open('POST', apiUrl + '/files/upload-direct');
-        if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        xhr.send(formData);
+      // Upload via base64 JSON
+      const reader = new FileReader();
+      const fileData: string = await new Promise((res, rej) => {
+        reader.onload = () => res((reader.result as string).split(',')[1]);
+        reader.onerror = rej;
+        reader.readAsDataURL(file);
+      });
+      setProgress(40);
+      await api.fetch('/files/upload-direct', {
+        method: 'POST',
+        body: JSON.stringify({
+          fileData,
+          fileName: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          projectId, taskId, visibility,
+        }),
       });
       // File registered by the API directly
       });

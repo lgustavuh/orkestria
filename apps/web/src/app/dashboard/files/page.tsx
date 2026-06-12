@@ -60,21 +60,21 @@ export default function FilesPage() {
     const update = (p: number, s: UploadingFile['status'] = 'uploading') => setUploading(prev => prev.map(u => u.file === file ? { ...u, progress: p, status: s } : u));
     try {
       update(10);
-      const formData = new FormData();
-      formData.append('file', file);
-      if (selectedProjectId) formData.append('projectId', selectedProjectId);
-      
-      const token = api.getAccessToken();
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
-      
-      await new Promise<void>((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) update(10 + Math.round((e.loaded / e.total) * 80)); });
-        xhr.addEventListener('load', () => xhr.status < 300 ? resolve() : reject(new Error(`${xhr.status}`)));
-        xhr.addEventListener('error', () => reject(new Error('Erro de rede')));
-        xhr.open('POST', apiUrl + '/files/upload-direct');
-        if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
-        xhr.send(formData);
+      const reader = new FileReader();
+      const fileData: string = await new Promise((res, rej) => {
+        reader.onload = () => res((reader.result as string).split(',')[1]);
+        reader.onerror = rej;
+        reader.readAsDataURL(file);
+      });
+      update(30);
+      await api.fetch('/files/upload-direct', {
+        method: 'POST',
+        body: JSON.stringify({
+          fileData,
+          fileName: file.name,
+          mimeType: file.type || 'application/octet-stream',
+          projectId: selectedProjectId || undefined,
+        }),
       });
       update(100, 'done');
       show(`${file.name} enviado`);

@@ -71,9 +71,12 @@ export class FilesService {
     return { data: files, total: files.length };
   }
 
-  async uploadDirect(file: any, body: any, userId: string, roles: string[], tenantId?: string) {
-    if (!file) throw new BadRequestException('Nenhum arquivo enviado');
+  async uploadDirect(body: any, userId: string, roles: string[], tenantId?: string) {
+    if (!body.fileData || !body.fileName) throw new BadRequestException('fileData and fileName are required');
 
+    const buffer = Buffer.from(body.fileData, 'base64');
+    const fileName = body.fileName;
+    const mimeType = body.mimeType || 'application/octet-stream';
     const projectId = body.projectId || null;
     const taskId = body.taskId || null;
     const visibility = body.visibility || 'INTERNAL';
@@ -85,26 +88,21 @@ export class FilesService {
       if (tenant) bucket = tenant.slug + '-files';
     }
 
+    // Ensure bucket exists
+    await this.s3.createBucket(bucket).catch(() => {});
+
     const s3Key = projectId
-      ? \`\${projectId}/\${Date.now()}-\${file.originalname}\`
-      : \`uploads/\${Date.now()}-\${file.originalname}\`;
+      ? `${projectId}/${Date.now()}-${fileName}`
+      : `uploads/${Date.now()}-${fileName}`;
 
-    // Upload to S3
-    await this.s3.uploadBuffer(s3Key, file.buffer, file.mimetype, bucket);
+    await this.s3.uploadBuffer(s3Key, buffer, mimeType, bucket);
 
-    // Register file
     const record = await this.prisma.file.create({
       data: {
-        fileName: file.originalname,
-        originalName: file.originalname,
-        mimeType: file.mimetype,
-        sizeBytes: file.size,
-        s3Key,
-        s3Bucket: bucket,
-        visibility: visibility as any,
-        uploadedById: userId,
-        projectId,
-        taskId,
+        fileName, originalName: fileName, mimeType,
+        sizeBytes: buffer.length, s3Key, s3Bucket: bucket,
+        visibility: visibility as any, uploadedById: userId,
+        projectId, taskId,
       },
     });
 

@@ -8,7 +8,7 @@ import {
   Param,
   Query,
   UseGuards,
-, Res, StreamableFile, UseInterceptors , Req } from '@nestjs/common';
+, Res, StreamableFile  } from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { FilesService } from './files.service';
@@ -48,6 +48,15 @@ export class FilesController {
   }
 
   @Post('upload-direct')
+  @ApiOperation({ summary: 'Upload direto de arquivo (base64)' })
+  async uploadDirect(
+    @Body() body: any,
+    @CurrentUser() user: any,
+    @CurrentTenant() tenantId: string,
+  ) {
+    return this.files.uploadDirect(body, user.sub, user.roles, tenantId);
+  }
+
   @ApiOperation({ summary: 'Upload direto de arquivo' })
   async uploadDirect(
     @Req() req: any,

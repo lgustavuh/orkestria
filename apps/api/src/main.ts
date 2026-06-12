@@ -26,6 +26,7 @@ async function bootstrap() {
 
   // Avatar routes get higher limit (10MB for base64 images)
   const express = require('express');
+  app.use('/api/files/upload-direct', express.json({ limit: '50mb' }));
   app.use('/api/users/me', express.json({ limit: '10mb' }));
   app.use('/api/clients', express.json({ limit: '10mb' }));
   app.use('/api/portal/profile', express.json({ limit: '10mb' }));
