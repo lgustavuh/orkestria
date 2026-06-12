@@ -3,7 +3,6 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
 
-// Force IPv4 (pooler already resolves to IPv4, but just in case)
 try { require('dns').setDefaultResultOrder('ipv4first'); } catch {}
 
 @Injectable()
@@ -14,12 +13,45 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
   constructor() {
     const connStr = process.env.DATABASE_URL as string;
 
-    const pool = new Pool({
-      connectionString: connStr,
-      ssl: { rejectUnauthorized: false },
-      max: 10,
-    });
+    // Supabase pooler uses dotted username (postgres.ref) which adapter-pg
+    // misinterprets as hostname. Parse manually and pass the ref via options.
+    let poolConfig: any;
+    try {
+      const url = new URL(connStr);
+      const fullUser = decodeURIComponent(url.username); // postgres.tynpvm...
+      const password = decodeURIComponent(url.password);
+      const host = url.hostname;
+      const port = parseInt(url.port) || 5432;
+      const database = url.pathname.replace('/', '') || 'postgres';
 
+      // Check if it's a Supabase pooler with dotted username
+      if (fullUser.includes('.') && host.includes('pooler.supabase.com')) {
+        const [, projectRef] = fullUser.split('.');
+        poolConfig = {
+          user: 'postgres',
+          password,
+          host,
+          port,
+          database,
+          ssl: { rejectUnauthorized: false },
+          // Pass project ref via connection options
+          options: `project=${projectRef}`,
+        };
+      } else {
+        poolConfig = {
+          user: fullUser,
+          password,
+          host,
+          port,
+          database,
+          ssl: host.includes('supabase') ? { rejectUnauthorized: false } : false,
+        };
+      }
+    } catch {
+      poolConfig = { connectionString: connStr, ssl: { rejectUnauthorized: false } };
+    }
+
+    const pool = new Pool(poolConfig);
     const adapter = new PrismaPg(pool);
     super({ adapter } as any);
     this.pgPool = pool;
