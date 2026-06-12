@@ -8,7 +8,7 @@ import {
   Param,
   Query,
   UseGuards,
-, Res, StreamableFile, UseInterceptors, UploadedFile } from '@nestjs/common';
+, Res, StreamableFile, UseInterceptors, UploadedFile, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
@@ -50,6 +50,7 @@ export class FilesController {
 
   @Post('upload-direct')
   @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: false, forbidNonWhitelisted: false }))
   @ApiOperation({ summary: 'Upload direto de arquivo' })
   async uploadDirect(
     @UploadedFile() file: any,
