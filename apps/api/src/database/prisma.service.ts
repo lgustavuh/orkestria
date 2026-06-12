@@ -2,10 +2,9 @@ import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/commo
 import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { Pool } from 'pg';
-import dns from 'dns';
 
-// Force IPv4 DNS resolution (Railway doesn't support IPv6)
-dns.setDefaultResultOrder('ipv4first');
+// Force IPv4 (pooler already resolves to IPv4, but just in case)
+try { require('dns').setDefaultResultOrder('ipv4first'); } catch {}
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
@@ -18,6 +17,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
     const pool = new Pool({
       connectionString: connStr,
       ssl: { rejectUnauthorized: false },
+      max: 10,
     });
 
     const adapter = new PrismaPg(pool);
