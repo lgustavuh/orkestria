@@ -46,7 +46,10 @@ export default function FilesPage() {
     // Load image previews
     items.forEach((f: any) => {
       if (isImageMime(f.mimeType) && !previews[f.id]) {
-        api.getDownloadUrl(f.id).then(r => setPreviews(p => ({ ...p, [f.id]: r.downloadUrl }))).catch(() => {});
+        // Preview via API proxy
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+        const token = api.getAccessToken();
+        fetch(apiUrl + '/files/' + f.id + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} }).then(r => r.blob()).then(b => setPreviews(p => ({ ...p, [f.id]: URL.createObjectURL(b) }))).catch(() => {});
       }
     });
   }).catch(() => setFiles([]));
@@ -57,22 +60,22 @@ export default function FilesPage() {
     const update = (p: number, s: UploadingFile['status'] = 'uploading') => setUploading(prev => prev.map(u => u.file === file ? { ...u, progress: p, status: s } : u));
     try {
       update(10);
-      const presigned = await api.getPresignedUpload({ projectId: selectedProjectId || undefined, fileName: file.name, mimeType: file.type || (() => {
-          const ext = file.name.split('.').pop()?.toLowerCase() || '';
-          const mimeMap: Record<string, string> = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', pdf: 'application/pdf', doc: 'application/msword', docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', xls: 'application/vnd.ms-excel', xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation', txt: 'text/plain', csv: 'text/csv', mp4: 'video/mp4', zip: 'application/zip' };
-          return mimeMap[ext] || 'text/plain';
-        })(), sizeBytes: file.size });
-      update(20);
+      const formData = new FormData();
+      formData.append('file', file);
+      if (selectedProjectId) formData.append('projectId', selectedProjectId);
+      
+      const token = api.getAccessToken();
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+      
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) update(20 + Math.round((e.loaded / e.total) * 60)); });
+        xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) update(10 + Math.round((e.loaded / e.total) * 80)); });
         xhr.addEventListener('load', () => xhr.status < 300 ? resolve() : reject(new Error(`${xhr.status}`)));
         xhr.addEventListener('error', () => reject(new Error('Erro de rede')));
-        xhr.open('PUT', presigned.uploadUrl);
-        xhr.send(file);
+        xhr.open('POST', apiUrl + '/files/upload-direct');
+        if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        xhr.send(formData);
       });
-      update(85);
-      await api.registerFile({ projectId: selectedProjectId || undefined, fileName: file.name, originalName: file.name, mimeType: file.type || 'application/octet-stream', sizeBytes: file.size, s3Key: presigned.s3Key, s3Bucket: presigned.s3Bucket });
       update(100, 'done');
       show(`${file.name} enviado`);
       load();
@@ -86,7 +89,19 @@ export default function FilesPage() {
   const handleFiles = (fl: FileList | null) => { if (fl) Array.from(fl).forEach(uploadFile); };
 
   const openFile = async (fileId: string) => {
-    try { const r = await api.getDownloadUrl(fileId); window.open(r.downloadUrl, '_blank'); } catch { show('Erro ao abrir', 'error'); }
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+      const token = api.getAccessToken();
+      const res = await fetch(apiUrl + '/files/' + fileId + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} });
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = '';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch { show('Erro ao abrir', 'error'); }
   };
 
   const deleteFile = async (fileId: string, name: string) => {

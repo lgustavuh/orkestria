@@ -71,6 +71,46 @@ export class FilesService {
     return { data: files, total: files.length };
   }
 
+  async uploadDirect(file: any, body: any, userId: string, roles: string[], tenantId?: string) {
+    if (!file) throw new BadRequestException('Nenhum arquivo enviado');
+
+    const projectId = body.projectId || null;
+    const taskId = body.taskId || null;
+    const visibility = body.visibility || 'INTERNAL';
+
+    // Determine bucket
+    let bucket = this.bucket;
+    if (tenantId) {
+      const tenant = await this.prisma.tenant.findUnique({ where: { id: tenantId }, select: { slug: true } });
+      if (tenant) bucket = tenant.slug + '-files';
+    }
+
+    const s3Key = projectId
+      ? \`\${projectId}/\${Date.now()}-\${file.originalname}\`
+      : \`uploads/\${Date.now()}-\${file.originalname}\`;
+
+    // Upload to S3
+    await this.s3.uploadBuffer(s3Key, file.buffer, file.mimetype, bucket);
+
+    // Register file
+    const record = await this.prisma.file.create({
+      data: {
+        fileName: file.originalname,
+        originalName: file.originalname,
+        mimeType: file.mimetype,
+        sizeBytes: file.size,
+        s3Key,
+        s3Bucket: bucket,
+        visibility: visibility as any,
+        uploadedById: userId,
+        projectId,
+        taskId,
+      },
+    });
+
+    return record;
+  }
+
   async getPresignedUpload(params: {
     projectId?: string; taskId?: string; fileName: string;
     mimeType: string; sizeBytes: number; userId: string; tenantId?: string;
@@ -179,6 +219,14 @@ export class FilesService {
       },
     });
     return { data: files, total: files.length };
+  }
+
+  async downloadFile(id: string, userId: string, roles: string[]) {
+    const file = await this.prisma.file.findUnique({ where: { id } });
+    if (!file) throw new NotFoundException('Arquivo não encontrado');
+    
+    const buffer = await this.s3.downloadObject(file.s3Key, (file as any).s3Bucket);
+    return { buffer, originalName: file.originalName, mimeType: file.mimeType };
   }
 
   async getDownloadUrl(id: string, userId: string, roles: string[]) {

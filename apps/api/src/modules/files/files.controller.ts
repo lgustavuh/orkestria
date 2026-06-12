@@ -8,7 +8,9 @@ import {
   Param,
   Query,
   UseGuards,
-} from '@nestjs/common';
+, Res, StreamableFile, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Response } from 'express';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { FilesService } from './files.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -44,6 +46,18 @@ export class FilesController {
     @CurrentTenant() tenantId: string,
   ) {
     return this.files.getPresignedUpload({ ...body, userId, tenantId });
+  }
+
+  @Post('upload-direct')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
+  @ApiOperation({ summary: 'Upload direto de arquivo' })
+  async uploadDirect(
+    @UploadedFile() file: any,
+    @Body() body: any,
+    @CurrentUser() user: any,
+    @CurrentTenant() tenantId: string,
+  ) {
+    return this.files.uploadDirect(file, body, user.sub, user.roles, tenantId);
   }
 
   @Post()
@@ -83,12 +97,19 @@ export class FilesController {
   }
 
   @Get(':id/download')
-  @ApiOperation({ summary: 'Obter URL de download' })
-  download(
+  @ApiOperation({ summary: 'Download de arquivo (proxy)' })
+  async download(
     @Param('id') id: string,
     @CurrentUser() user: any,
+    @Res() res: Response,
   ) {
-    return this.files.getDownloadUrl(id, user.sub, user.roles);
+    const { buffer, originalName, mimeType } = await this.files.downloadFile(id, user.sub, user.roles);
+    res.set({
+      'Content-Type': mimeType || 'application/octet-stream',
+      'Content-Disposition': `attachment; filename="${encodeURIComponent(originalName)}"`,
+      'Content-Length': buffer.length,
+    });
+    res.end(buffer);
   }
 
   @Patch(':id/link-to-task')
