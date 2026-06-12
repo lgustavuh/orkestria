@@ -217,8 +217,15 @@ export default function ClientsPage() {
       // Upload logo first
       if (logoFile) {
         try {
-          const p = await api.getPresignedUpload({ fileName: logoFile.name, mimeType: logoFile.type, sizeBytes: logoFile.size });
-          await fetch(p.uploadUrl, { method: 'PUT', body: logoFile });
+          const logoForm = new FormData();
+          logoForm.append('file', logoFile);
+          const token = api.getAccessToken();
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+          const logoRes = await fetch(apiUrl + '/files/upload-direct', {
+            method: 'POST', body: logoForm,
+            headers: token ? { Authorization: 'Bearer ' + token } : {},
+          });
+          const p = await logoRes.json();
           data.logoUrl = p.s3Key;
           // Also convert to base64 for portal user avatar
           const reader = new FileReader();
@@ -247,8 +254,15 @@ export default function ClientsPage() {
       // Upload contract
       if (contractFile && client?.id) {
         try {
-          const p = await api.getPresignedUpload({ fileName: contractFile.name, mimeType: 'application/pdf', sizeBytes: contractFile.size });
-          await fetch(p.uploadUrl, { method: 'PUT', body: contractFile });
+          const contractForm = new FormData();
+          contractForm.append('file', contractFile);
+          const tokenC = api.getAccessToken();
+          const apiUrlC = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+          const contractRes = await fetch(apiUrlC + '/files/upload-direct', {
+            method: 'POST', body: contractForm,
+            headers: tokenC ? { Authorization: 'Bearer ' + tokenC } : {},
+          });
+          const p = await contractRes.json();
           await api.updateClient(client.id, { contractUrl: p.s3Key });
           setSavedContractUrl(p.s3Key);
         } catch { show('Erro no upload do contrato', 'error'); }

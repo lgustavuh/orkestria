@@ -51,47 +51,26 @@ export function FileUpload({ projectId, taskId, onUploadComplete, accept, maxSiz
     };
 
     try {
-      // 1. Get presigned URL
-      updateProgress(10);
-      const presigned = await api.getPresignedUpload({
-        projectId,
-        taskId,
-        fileName: file.name,
-        mimeType: file.type || 'application/octet-stream',
-        sizeBytes: file.size,
-      });
-
-      // 2. Upload to S3 using XMLHttpRequest for progress
-      updateProgress(20);
+      // Direct upload via API
+      const formData = new FormData();
+      formData.append('file', file);
+      if (projectId) formData.append('projectId', projectId);
+      if (taskId) formData.append('taskId', taskId);
+      if (visibility) formData.append('visibility', visibility);
+      
+      const token = api.getAccessToken();
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+      
       await new Promise<void>((resolve, reject) => {
         const xhr = new XMLHttpRequest();
-        xhr.upload.addEventListener('progress', (e) => {
-          if (e.lengthComputable) {
-            const pct = 20 + Math.round((e.loaded / e.total) * 60);
-            updateProgress(pct);
-          }
-        });
-        xhr.addEventListener('load', () => {
-          if (xhr.status >= 200 && xhr.status < 300) resolve();
-          else reject(new Error(`Upload failed: ${xhr.status}`));
-        });
-        xhr.addEventListener('error', () => reject(new Error('Upload failed')));
-        xhr.open('PUT', presigned.uploadUrl);
-        xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-        xhr.send(file);
+        xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) setProgress(Math.round((e.loaded / e.total) * 90)); });
+        xhr.addEventListener('load', () => xhr.status < 300 ? resolve() : reject(new Error(xhr.responseText || 'Upload failed')));
+        xhr.addEventListener('error', () => reject(new Error('Network error')));
+        xhr.open('POST', apiUrl + '/files/upload-direct');
+        if (token) xhr.setRequestHeader('Authorization', 'Bearer ' + token);
+        xhr.send(formData);
       });
-
-      // 3. Register in database
-      updateProgress(85, 'registering');
-      const registered = await api.registerFile({
-        projectId,
-        taskId,
-        fileName: file.name,
-        originalName: file.name,
-        mimeType: file.type || 'application/octet-stream',
-        sizeBytes: file.size,
-        s3Key: presigned.s3Key,
-        s3Bucket: presigned.s3Bucket,
+      // File registered by the API directly
       });
 
       updateProgress(100, 'done');
