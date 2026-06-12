@@ -82,7 +82,7 @@ export class FilesService {
     const visibility = body.visibility || 'INTERNAL';
 
     // Determine bucket
-    let bucket: string | undefined = undefined;
+    let bucket: string = process.env.S3_BUCKET || 'orkestria-files';
     if (tenantId) {
       const tenant = await this.prisma.tenant.findUnique({ where: { id: tenantId }, select: { slug: true } });
       if (tenant) bucket = tenant.slug + '-files';
