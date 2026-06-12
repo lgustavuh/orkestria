@@ -8,9 +8,8 @@ import {
   Param,
   Query,
   UseGuards,
-, Res, StreamableFile, UseInterceptors, UploadedFile, UsePipes, ValidationPipe } from '@nestjs/common';
+, Res, StreamableFile, UseInterceptors , Req } from '@nestjs/common';
 import { Response } from 'express';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { FilesService } from './files.service';
 import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
@@ -49,16 +48,46 @@ export class FilesController {
   }
 
   @Post('upload-direct')
-  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: 50 * 1024 * 1024 } }))
-  @UsePipes(new ValidationPipe({ transform: true, whitelist: false, forbidNonWhitelisted: false }))
   @ApiOperation({ summary: 'Upload direto de arquivo' })
   async uploadDirect(
-    @UploadedFile() file: any,
-    @Body() body: any,
+    @Req() req: any,
     @CurrentUser() user: any,
     @CurrentTenant() tenantId: string,
   ) {
-    return this.files.uploadDirect(file, body, user.sub, user.roles, tenantId);
+    // Parse multipart manually using busboy
+    const busboy = require('busboy');
+    
+    return new Promise((resolve, reject) => {
+      const bb = busboy({ headers: req.headers, limits: { fileSize: 50 * 1024 * 1024 } });
+      let fileData: Buffer | null = null;
+      let fileName = '';
+      let mimeType = '';
+      const fields: Record<string, string> = {};
+
+      bb.on('file', (_name: string, stream: any, info: any) => {
+        fileName = info.filename;
+        mimeType = info.mimeType;
+        const chunks: Buffer[] = [];
+        stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+        stream.on('end', () => { fileData = Buffer.concat(chunks); });
+      });
+
+      bb.on('field', (name: string, val: string) => { fields[name] = val; });
+
+      bb.on('finish', async () => {
+        if (!fileData) return reject(new Error('No file uploaded'));
+        try {
+          const result = await this.files.uploadDirect(
+            { buffer: fileData, originalname: fileName, mimetype: mimeType, size: fileData.length },
+            fields, user.sub, user.roles, tenantId
+          );
+          resolve(result);
+        } catch (e) { reject(e); }
+      });
+
+      bb.on('error', reject);
+      req.pipe(bb);
+    });
   }
 
   @Post()
