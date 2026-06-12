@@ -10,15 +10,17 @@ class ApiClient {
 
   setTokens(access: string, refresh?: string) {
     this.accessToken = access;
-    if (refresh) this.refreshToken = refresh; // backward compat
+    if (refresh) this.refreshToken = refresh;
     if (typeof window !== 'undefined') {
       localStorage.setItem('accessToken', access);
+      if (refresh) localStorage.setItem('refreshToken', refresh);
     }
   }
 
   loadTokens() {
     if (typeof window !== 'undefined') {
       this.accessToken = localStorage.getItem('accessToken');
+      this.refreshToken = localStorage.getItem('refreshToken');
     }
   }
 
@@ -27,6 +29,7 @@ class ApiClient {
     this.refreshToken = null;
     if (typeof window !== 'undefined') {
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
     }
   }
 
@@ -51,8 +54,8 @@ class ApiClient {
       const refreshRes = await fetch(`${API_URL}/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // sends httpOnly cookie
-        body: JSON.stringify({}),
+        credentials: 'include',
+        body: JSON.stringify({ refreshToken: this.refreshToken }),
       });
 
       if (refreshRes.ok) {
