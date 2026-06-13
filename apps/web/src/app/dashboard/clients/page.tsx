@@ -298,13 +298,16 @@ export default function ClientsPage() {
   const openContract = async (contractUrl: string) => {
     try {
       const res = await api.fetch<any>(`/files/download-url?key=${encodeURIComponent(contractUrl)}`);
-      if (res.downloadUrl) {
-        window.open(res.downloadUrl, '_blank');
+      if (res) {
+        const blob2 = await res.blob();
+        const url2 = URL.createObjectURL(blob2);
+        const a2 = document.createElement('a'); a2.href = url2; a2.download = 'contrato.pdf'; a2.click();
+        URL.revokeObjectURL(url2);
       }
     } catch {
       // Fallback: try direct MinIO URL
       try {
-        const endpoint = process.env.NEXT_PUBLIC_S3_ENDPOINT || 'http://localhost:9000';
+        // Files are accessed via API proxy
         const bucket = process.env.NEXT_PUBLIC_S3_BUCKET || 'orkestria-files';
         window.open(`${endpoint}/${bucket}/${contractUrl}`, '_blank');
       } catch {

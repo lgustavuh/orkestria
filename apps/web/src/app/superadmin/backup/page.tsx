@@ -45,8 +45,16 @@ export default function SuperAdminBackupPage() {
 
   const downloadBackup = async (s3Key: string) => {
     try {
-      const res = await api.fetch<any>(`/backup/download?key=${encodeURIComponent(s3Key)}`);
-      window.open(res.downloadUrl, '_blank');
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+      const token = api.getAccessToken();
+      const res = await fetch(apiUrl + '/backup/download?key=' + encodeURIComponent(s3Key), {
+        headers: token ? { Authorization: 'Bearer ' + token } : {},
+      });
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = s3Key.split('/').pop() || 'backup.sql'; a.click();
+      URL.revokeObjectURL(url);
     } catch { show('Erro no download', 'error'); }
   };
 

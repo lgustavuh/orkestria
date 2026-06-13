@@ -58,8 +58,8 @@ export function FileUpload({ projectId, taskId, onUploadComplete, accept, maxSiz
         reader.onerror = rej;
         reader.readAsDataURL(file);
       });
-      setProgress(40);
-      await api.fetch('/files/upload-direct', {
+      updateProgress(40);
+      const result = await api.fetch<any>('/files/upload-direct', {
         method: 'POST',
         body: JSON.stringify({
           fileData,
@@ -68,11 +68,9 @@ export function FileUpload({ projectId, taskId, onUploadComplete, accept, maxSiz
           projectId, taskId, visibility,
         }),
       });
-      // File registered by the API directly
-      });
 
       updateProgress(100, 'done');
-      onUploadComplete(registered);
+      onUploadComplete(result);
 
       // Remove from list after 2s
       setTimeout(() => {
