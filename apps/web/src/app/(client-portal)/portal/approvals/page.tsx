@@ -22,9 +22,9 @@ export default function PortalApprovalsPage() {
           const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
           const token = api.getAccessToken();
           fetch(apiUrl + '/files/' + f.id + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} })
-            .then(r => r.blob())
-            .then(b => setPreviews(p => ({ ...p, [f.id]: URL.createObjectURL(b) })))
-            .catch(() => {});
+            .then(r => { if (!r.ok) throw new Error(r.status + ''); return r.blob(); })
+            .then(b => { if (b.size > 0) setPreviews(p => ({ ...p, [f.id]: URL.createObjectURL(b) })); })
+            .catch((e) => console.warn('Preview failed for', f.id, e));
         }
       });
     });
@@ -106,11 +106,12 @@ export default function PortalApprovalsPage() {
                             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
                             const token = api.getAccessToken();
                             const res = await fetch(apiUrl + '/files/' + f.id + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} });
+                            if (!res.ok) throw new Error('Download failed');
                             const blob = await res.blob();
                             const url = URL.createObjectURL(blob);
                             const a = document.createElement('a'); a.href = url; a.download = f.originalName || f.fileName; a.click();
                             URL.revokeObjectURL(url);
-                          } catch {}
+                          } catch (e) { console.error('Download error:', e); }
                         }} className="rounded-lg border border-gray-200 dark:border-gray-700 hover:border-[#7BABC2] dark:hover:border-[#2A3F4E] hover:shadow-md transition-all overflow-hidden text-left group">
                           <div className="h-24 bg-gray-50 dark:bg-gray-800 flex items-center justify-center overflow-hidden relative">
                             {isImg(f.mimeType) && previews[f.id] ? (

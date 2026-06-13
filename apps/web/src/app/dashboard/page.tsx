@@ -43,7 +43,7 @@ export default function DashboardPage() {
     { label: 'Projetos ativos', value: stats?.activeProjects ?? '-', icon: FolderKanban, iconBg: '#EBF3F7', iconColor: '#4B7B9C', color: '#2A3F4E' },
     { label: 'Tarefas concluídas', value: doneTasks || '-', icon: CheckSquare, iconBg: '#ecfdf5', iconColor: '#059669', color: '#059669' },
     { label: 'Aprovações', value: stats?.pendingApprovals ?? '-', icon: ThumbsUp, iconBg: '#fef3e2', iconColor: '#d97706', color: '#d97706' },
-    { label: 'Tarefas atrasadas', value: stats?.tasksByStatus?.BLOCKED || 0, icon: AlertCircle, iconBg: '#fee2e2', iconColor: '#dc2626', color: '#dc2626' },
+    { label: 'Tarefas atrasadas', value: stats?.overdueTasks ?? 0, icon: AlertCircle, iconBg: '#fee2e2', iconColor: '#dc2626', color: '#dc2626' },
   ];
 
   return (

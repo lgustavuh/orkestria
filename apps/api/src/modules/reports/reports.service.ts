@@ -179,7 +179,7 @@ export class ReportsService {
       this.prisma.project.count({ where: { ...projectWhere, status: 'ACTIVE' } }),
       this.prisma.task.count({ where: taskWhere }),
       this.prisma.task.count({ where: { assigneeId: userId, status: { notIn: ['DONE', 'CANCELLED'] }, isDeleted: false } }),
-      this.prisma.task.count({ where: { assigneeId: userId, dueDate: { lt: new Date() }, status: { notIn: ['DONE', 'CANCELLED'] }, isDeleted: false } }),
+      this.prisma.task.count({ where: { ...(isAdmin ? {} : { assigneeId: userId }), ...(tenantId ? { project: { tenantId } } : {}), dueDate: { lt: new Date() }, status: { notIn: ['DONE', 'CANCELLED'] }, isDeleted: false } }),
       this.prisma.approval.count({ where: { status: 'PENDING' } }),
       this.prisma.auditLog.findMany({ orderBy: { createdAt: 'desc' }, take: 10, include: { user: { select: { firstName: true, lastName: true } } } }),
       this.prisma.task.groupBy({ by: ['status'], where: taskWhere, _count: true }),
