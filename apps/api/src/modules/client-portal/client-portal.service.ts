@@ -448,11 +448,10 @@ export class ClientPortalService {
   async getFileDownloadUrl(fileId: string, userId?: string) {
     const file = await this.prisma.file.findUnique({
       where: { id: fileId },
-      select: { s3Key: true, originalName: true, projectId: true, project: { select: { clientId: true } } },
+      select: { s3Key: true, s3Bucket: true, originalName: true, mimeType: true, projectId: true, project: { select: { clientId: true } } },
     });
     if (!file) throw new NotFoundException('Arquivo não encontrado');
 
-    // Verify the client has access to this file's project
     if (userId && file.project?.clientId) {
       const clientIds = await this.getClientIdsForUser(userId);
       if (!clientIds.includes(file.project.clientId)) {
@@ -460,7 +459,8 @@ export class ClientPortalService {
       }
     }
 
-    const downloadUrl = await this.s3.getPresignedDownloadUrl(file.s3Key, file.originalName);
+    const buffer = await this.s3.downloadObject(file.s3Key, (file as any).s3Bucket);
+    return { buffer, originalName: file.originalName, mimeType: (file as any).mimeType || 'application/octet-stream' };
     return { downloadUrl };
   }
 }
