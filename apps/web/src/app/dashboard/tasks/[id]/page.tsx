@@ -57,7 +57,7 @@ export default function TaskDetailPage() {
     setFiles(items);
     items.forEach((f: any) => {
       if (isImage(f.mimeType) && !previews[f.id]) {
-        (() => { const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'; const token = api.getAccessToken(); fetch(apiUrl + '/files/' + f.id + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} }).then(r => r.blob()).then(b => setPreviews(p => ({ ...p, [f.id]: URL.createObjectURL(b) }))); })().catch(() => {});
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'; const token = api.getAccessToken(); fetch(apiUrl + '/files/' + f.id + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} }).then(r => r.blob()).then(b => setPreviews(p => ({ ...p, [f.id]: URL.createObjectURL(b) }))).catch(() => {});
       }
     });
   }).catch(() => setFiles([]));

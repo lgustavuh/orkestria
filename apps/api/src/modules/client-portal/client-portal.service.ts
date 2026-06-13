@@ -461,6 +461,5 @@ export class ClientPortalService {
 
     const buffer = await this.s3.downloadObject(file.s3Key, (file as any).s3Bucket);
     return { buffer, originalName: file.originalName, mimeType: (file as any).mimeType || 'application/octet-stream' };
-    return { downloadUrl };
   }
 }

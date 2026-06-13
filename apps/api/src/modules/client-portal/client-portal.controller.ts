@@ -7,7 +7,8 @@ import {
   Query,
   Body,
   UseGuards,
-, Res } from '@nestjs/common';
+  Res,
+} from '@nestjs/common';
 import { Response } from 'express';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { ClientPortalService } from './client-portal.service';
