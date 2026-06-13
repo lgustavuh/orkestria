@@ -188,7 +188,7 @@ export default function PortalProjectPage() {
                   </div>
                   {f.description && <p className="text-xs text-gray-500 mt-1">{f.description}</p>}
                 </div>
-                <button onClick={() => api.getDownloadUrl(f.id).then(r => window.open(r.downloadUrl))}
+                <button onClick={() => (async () => { const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'; const token = api.getAccessToken(); const res = await fetch(apiUrl + '/files/' + f.id + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} }); const blob = await res.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = f.originalName || ''; a.click(); URL.revokeObjectURL(url); })()}
                   className="btn-secondary text-xs px-3 py-1.5">
                   <Download size={14} className="mr-1" /> Baixar
                 </button>

@@ -57,13 +57,13 @@ export default function TaskDetailPage() {
     setFiles(items);
     items.forEach((f: any) => {
       if (isImage(f.mimeType) && !previews[f.id]) {
-        api.getDownloadUrl(f.id).then(r => setPreviews(p => ({ ...p, [f.id]: r.downloadUrl }))).catch(() => {});
+        (() => { const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'; const token = api.getAccessToken(); fetch(apiUrl + '/files/' + f.id + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} }).then(r => r.blob()).then(b => setPreviews(p => ({ ...p, [f.id]: URL.createObjectURL(b) }))); })().catch(() => {});
       }
     });
   }).catch(() => setFiles([]));
 
   const openFile = async (fileId: string) => {
-    try { const r = await api.getDownloadUrl(fileId); window.open(r.downloadUrl, '_blank'); } catch {}
+    try { const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api'; const token = api.getAccessToken(); const res = await fetch(apiUrl + '/files/' + fileId + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} }); const blob = await res.blob(); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = ''; a.click(); URL.revokeObjectURL(url); } catch {}
   };
 
   const attachProjectFile = async (fileId: string) => {

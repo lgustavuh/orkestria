@@ -144,7 +144,7 @@ export default function ClientsPage() {
     (res.data || []).forEach((cl: any) => {
       if (cl.logoUrl && !logoPreviews[cl.id]) {
         api.fetch<any>(`/files/download-url?key=${encodeURIComponent(cl.logoUrl)}`).then(r => {
-          setLogoPreviews(p => ({ ...p, [cl.id]: r.downloadUrl }));
+          r.blob().then((b: Blob) => setLogoPreviews(p => ({ ...p, [cl.id]: URL.createObjectURL(b) })));
         }).catch(() => {});
       }
     });

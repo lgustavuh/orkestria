@@ -50,7 +50,12 @@ export default function ProjectDetailPage() {
       setProjectFiles(items);
       items.forEach((f: any) => {
         if (f.mimeType?.startsWith('image/') && !filePreviews[f.id]) {
-          api.getDownloadUrl(f.id).then(r => setFilePreviews(p => ({ ...p, [f.id]: r.downloadUrl }))).catch(() => {});
+          const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+          const token = api.getAccessToken();
+          fetch(apiUrl + '/files/' + f.id + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} })
+            .then(r => r.blob())
+            .then(b => setFilePreviews(p => ({ ...p, [f.id]: URL.createObjectURL(b) })))
+            .catch(() => {});
         }
       });
     }).catch(() => {});
@@ -331,7 +336,15 @@ export default function ProjectDetailPage() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {projectFiles.map((f: any) => (
-                <button key={f.id} onClick={async () => { try { const r = await api.getDownloadUrl(f.id); window.open(r.downloadUrl, '_blank'); } catch {} }}
+                <button key={f.id} onClick={async () => { try {
+                    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
+                    const token = api.getAccessToken();
+                    const res = await fetch(apiUrl + '/files/' + f.id + '/download', { headers: token ? { Authorization: 'Bearer ' + token } : {} });
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a'); a.href = url; a.download = f.originalName || ''; a.click();
+                    URL.revokeObjectURL(url);
+                  } catch {} }}
                   className="card p-0 overflow-hidden hover:shadow-md transition-all text-left group"
                   style={{ borderRadius: 'var(--radius-lg)' }}>
                   <div className="h-24 flex items-center justify-center overflow-hidden" style={{ background: 'var(--bg-secondary)' }}>
